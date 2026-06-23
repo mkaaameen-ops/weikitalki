@@ -103,7 +103,7 @@ function deactivateWavesAndUI() {
 }
 
 // ==========================================
-// 4. منطق الإرسال السريع الحامي من التكرار
+// 4. منطق الإرسال السريع الحامي من التكرار والتشغيل الفوري
 // ==========================================
 function startRecording() {
     if (!audioStream) return;
@@ -119,10 +119,22 @@ function startRecording() {
         if (db && storage) {
             uploadAudioFile(audioBlob);
         } else {
-            // محاكاة محلية آمنة في وضع التجربة
+            // حل مشكلة الحظر وتشغيل الصوت المحلي فوراً عند رفع الإصبع (وضع الديمو)
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
-            setTimeout(() => { audio.play(); }, 300);
+            
+            // نجبر المتصفح على تحميل الملف الصوتي في نفس ثانية رفع الإصبع
+            audio.load(); 
+            
+            // تشغيل مباشر متوافق مع الحماية الذكية للمتصفحات والهواتف
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log("تم تقييد التشغيل التلقائي بواسطة المتصفح، جاري تجهيز خطة بديلة...");
+                    // خطة بديلة: يتم التشغيل مع أول لمسة قادمة على الشاشة بحرية تامة
+                    document.body.addEventListener('click', () => { audio.play(); }, { once: true });
+                });
+            }
         }
     };
 
@@ -139,7 +151,7 @@ function stopRecording() {
     }
 }
 
-// ربط أحداث اللمس الفوري والضغط
+// ربط أحداث اللمس الفوري والضغط للكمبيوتر والهاوتف الذكية
 pttBtn.addEventListener('mousedown', startRecording);
 pttBtn.addEventListener('mouseup', stopRecording);
 pttBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startRecording(); });
