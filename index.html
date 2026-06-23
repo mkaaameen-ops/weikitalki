@@ -1,876 +1,391 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MultiMind — Offline Thinking Hub</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #0f1226;
-    --bg2: #1a1f3a;
-    --card: #232a4f;
-    --accent: #7c5cff;
-    --accent2: #00d4ff;
-    --text: #e8ecff;
-    --muted: #8a92b8;
-    --good: #4ade80;
-    --bad: #f87171;
-  }
-  body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: linear-gradient(135deg, var(--bg), var(--bg2));
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-  header {
-    padding: 18px 24px;
-    background: rgba(0,0,0,0.3);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  header h1 {
-    font-size: 1.6rem;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-  header .tag { font-size: .8rem; color: var(--muted); }
-  nav {
-    display: flex;
-    gap: 8px;
-    padding: 12px 24px;
-    overflow-x: auto;
-    background: rgba(0,0,0,0.2);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-  nav button {
-    background: var(--card);
-    color: var(--text);
-    border: 1px solid rgba(255,255,255,0.08);
-    padding: 10px 16px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: .9rem;
-    white-space: nowrap;
-    transition: all .2s;
-  }
-  nav button:hover { background: #2e3666; transform: translateY(-1px); }
-  nav button.active {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-color: transparent;
-    color: white;
-    font-weight: 600;
-  }
-  main {
-    flex: 1;
-    padding: 24px;
-    display: flex;
-    justify-content: center;
-  }
-  .game {
-    display: none;
-    width: 100%;
-    max-width: 720px;
-    background: var(--card);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-    animation: fadeIn .3s ease;
-  }
-  .game.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to {opacity:1; transform:none;} }
-  .game h2 { margin-bottom: 8px; font-size: 1.4rem; }
-  .game p.desc { color: var(--muted); margin-bottom: 16px; font-size: .95rem; }
-  .stats {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 16px;
-  }
-  .stat {
-    background: rgba(0,0,0,0.3);
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: .9rem;
-  }
-  .stat b { color: var(--accent2); }
-  button.btn {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: .95rem;
-    transition: transform .15s;
-  }
-  button.btn:hover { transform: translateY(-2px); }
-  button.btn.small { padding: 6px 12px; font-size: .85rem; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مركز ألعاب الانتظار ⏳</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --primary: #bb86fc;
+            --secondary: #03dac6;
+            --text: #ffffff;
+            --danger: #cf6679;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 { color: var(--primary); margin-bottom: 10px; }
+        p.subtitle { color: #aaa; margin-top: 0; margin-bottom: 30px; }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
+        }
+        .menu-btn {
+            background: var(--card-bg);
+            border: 2px solid #333;
+            color: var(--text);
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .menu-btn:hover { border-color: var(--primary); transform: translateY(-5px); }
+        .menu-btn .icon { font-size: 2rem; display: block; margin-bottom: 10px; }
 
-  /* Memory Game */
-  .memory-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    max-width: 400px;
-    margin: 0 auto;
-  }
-  .memory-card {
-    aspect-ratio: 1;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    cursor: pointer;
-    user-select: none;
-    transition: transform .3s;
-    transform-style: preserve-3d;
-  }
-  .memory-card.flipped { background: var(--bg2); }
-  .memory-card.matched { background: var(--good); opacity: .7; cursor: default; }
+        .game-screen {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .game-screen.active { display: block; }
+        
+        .back-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
 
-  /* Tic Tac Toe */
-  .ttt-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 100px);
-    gap: 6px;
-    margin: 0 auto;
-    width: fit-content;
-  }
-  .ttt-cell {
-    width: 100px; height: 100px;
-    background: var(--bg2);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background .2s;
-  }
-  .ttt-cell:hover { background: #2e3666; }
-  .ttt-cell.x { color: var(--accent2); }
-  .ttt-cell.o { color: var(--bad); }
+        /* Game 1: Reaction */
+        #reaction-box {
+            width: 100%;
+            height: 200px;
+            background: #333;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background 0.1s;
+            user-select: none;
+        }
 
-  /* 2048 */
-  .g2048 {
-    background: var(--bg2);
-    padding: 10px;
-    border-radius: 10px;
-    display: grid;
-    grid-template-columns: repeat(4, 70px);
-    gap: 8px;
-    margin: 0 auto;
-    width: fit-content;
-  }
-  .tile {
-    width: 70px; height: 70px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1.3rem;
-    background: #2e3666;
-    color: var(--text);
-  }
-  .tile[data-v="2"]{background:#eee4da;color:#776e65}
-  .tile[data-v="4"]{background:#ede0c8;color:#776e65}
-  .tile[data-v="8"]{background:#f2b179;color:white}
-  .tile[data-v="16"]{background:#f59563;color:white}
-  .tile[data-v="32"]{background:#f67c5f;color:white}
-  .tile[data-v="64"]{background:#f65e3b;color:white}
-  .tile[data-v="128"]{background:#edcf72;color:white;font-size:1.1rem}
-  .tile[data-v="256"]{background:#edcc61;color:white;font-size:1.1rem}
-  .tile[data-v="512"]{background:#edc850;color:white;font-size:1.1rem}
-  .tile[data-v="1024"]{background:#edc53f;color:white;font-size:.95rem}
-  .tile[data-v="2048"]{background:#edc22e;color:white;font-size:.95rem}
+        /* Game 2: Whack */
+        .mole-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .mole-hole {
+            height: 80px;
+            background: #2a2a2a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        .mole-hole.active { background: var(--secondary); transform: scale(1.1); }
 
-  /* Snake */
-  #snakeCanvas {
-    background: var(--bg2);
-    border-radius: 10px;
-    display: block;
-    margin: 0 auto;
-    max-width: 100%;
-  }
+        /* Game 3 & 4: Inputs */
+        .game-input {
+            padding: 12px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            border: 2px solid #444;
+            background: #2a2a2a;
+            color: white;
+            text-align: center;
+            width: 80%;
+            max-width: 300px;
+            margin: 10px 0;
+        }
+        .submit-btn {
+            background: var(--primary);
+            color: black;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
 
-  /* Reaction */
-  .reaction-box {
-    height: 250px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.3rem;
-    cursor: pointer;
-    user-select: none;
-    background: var(--bad);
-    transition: background .15s;
-  }
-  .reaction-box.wait { background: var(--bad); }
-  .reaction-box.ready { background: var(--good); }
-  .reaction-box.idle { background: var(--accent); }
+        /* Game 5: Clicker */
+        #click-target {
+            width: 150px;
+            height: 150px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: black;
+            margin: 20px auto;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s;
+        }
+        #click-target:active { transform: scale(0.9); }
 
-  /* Color Match */
-  .color-word {
-    font-size: 3rem;
-    font-weight: bold;
-    text-align: center;
-    margin: 20px 0;
-    letter-spacing: 2px;
-  }
-  .color-btns {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    max-width: 400px;
-    margin: 0 auto;
-  }
-  .color-btns button {
-    padding: 14px;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 1rem;
-  }
-
-  /* Word Scramble */
-  .scramble-word {
-    font-size: 2.5rem;
-    text-align: center;
-    letter-spacing: 8px;
-    margin: 20px 0;
-    color: var(--accent2);
-    font-weight: bold;
-  }
-  .scramble input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: var(--bg2);
-    color: var(--text);
-    font-size: 1rem;
-    margin-bottom: 10px;
-  }
-
-  /* Math Sprint */
-  .math-problem {
-    font-size: 3rem;
-    text-align: center;
-    margin: 20px 0;
-    font-weight: bold;
-  }
-  .math-problem input {
-    width: 150px;
-    padding: 10px;
-    font-size: 1.5rem;
-    text-align: center;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: var(--bg2);
-    color: var(--text);
-    margin-left: 10px;
-  }
-  .feedback { text-align: center; min-height: 24px; margin: 10px 0; font-weight: 600; }
-  .feedback.good { color: var(--good); }
-  .feedback.bad { color: var(--bad); }
-
-  footer {
-    text-align: center;
-    padding: 12px;
-    color: var(--muted);
-    font-size: .8rem;
-  }
-  @media (max-width: 500px) {
-    .ttt-grid { grid-template-columns: repeat(3, 80px); }
-    .ttt-cell { width: 80px; height: 80px; font-size: 2rem; }
-    .g2048 { grid-template-columns: repeat(4, 60px); }
-    .tile { width: 60px; height: 60px; font-size: 1.1rem; }
-  }
-</style>
+        .score-board { font-size: 1.5rem; color: var(--secondary); margin: 15px 0; }
+        .timer { font-size: 1.2rem; color: var(--danger); }
+    </style>
 </head>
 <body>
 
-<header>
-  <h1>🧠 MultiMind</h1>
-  <span class="tag">Offline • 8 Thinking Games</span>
-</header>
-
-<nav id="nav">
-  <button data-g="memory" class="active">🎴 Memory</button>
-  <button data-g="ttt">⭕ Tic Tac Toe</button>
-  <button data-g="g2048">🔢 2048</button>
-  <button data-g="snake">🐍 Snake</button>
-  <button data-g="reaction">⚡ Reaction</button>
-  <button data-g="color">🎨 Color Match</button>
-  <button data-g="scramble">🔤 Word Scramble</button>
-  <button data-g="math">➗ Math Sprint</button>
-</nav>
-
-<main>
-  <!-- MEMORY -->
-  <section class="game active" id="memory">
-    <h2>🎴 Memory Match</h2>
-    <p class="desc">Flip cards and find matching pairs. Try to finish in fewest moves!</p>
-    <div class="stats">
-      <div class="stat">Moves: <b id="memMoves">0</b></div>
-      <div class="stat">Pairs: <b id="memPairs">0</b>/8</div>
+    <!-- Main Menu -->
+    <div id="main-menu">
+        <h1>⏳ مركز ألعاب الانتظار</h1>
+        <p class="subtitle">اختر لعبة لقتل الوقت!</p>
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="showGame('game1')"><span class="icon">⚡</span>سرعة الاستجابة</button>
+            <button class="menu-btn" onclick="showGame('game2')"><span class="icon">🐹</span>اضرب الهدف</button>
+            <button class="menu-btn" onclick="showGame('game3')"><span class="icon">🔤</span>فك الحروف</button>
+            <button class="menu-btn" onclick="showGame('game4')"><span class="icon">🧮</span>تحدي الحساب</button>
+            <button class="menu-btn" onclick="showGame('game5')"><span class="icon">👆</span>النقر السريع</button>
+        </div>
     </div>
-    <div class="memory-grid" id="memGrid"></div>
-    <div style="margin-top:16px;text-align:center;">
-      <button class="btn" onclick="initMemory()">🔄 New Game</button>
+
+    <!-- Game 1: Reaction Time -->
+    <div id="game1" class="game-screen">
+        <button class="back-btn" onclick="goBack()">🔙 رجوع</button>
+        <h2>⚡ اختبار سرعة الاستجابة</h2>
+        <p>انتظر حتى يتحول اللون إلى الأخضر ثم انقر بسرعة!</p>
+        <div id="reaction-box" onclick="handleReaction()">ابدأ</div>
+        <div class="score-board" id="reaction-score"></div>
     </div>
-  </section>
 
-  <!-- TIC TAC TOE -->
-  <section class="game" id="ttt">
-    <h2>⭕ Tic Tac Toe vs AI</h2>
-    <p class="desc">You are X. Beat the minimax AI!</p>
-    <div class="stats">
-      <div class="stat">Status: <b id="tttStatus">Your turn</b></div>
+    <!-- Game 2: Whack-a-Mole -->
+    <div id="game2" class="game-screen">
+        <button class="back-btn" onclick="goBack()">🔙 رجوع</button>
+        <h2>🐹 اضرب الهدف</h2>
+        <p>اضرب الدوائر الملونة قبل أن تختفي! (30 ثانية)</p>
+        <div class="timer" id="mole-timer">الوقت: 30</div>
+        <div class="score-board" id="mole-score">النقاط: 0</div>
+        <div class="mole-grid" id="mole-grid"></div>
+        <button class="submit-btn" onclick="startMole()">ابدأ اللعبة</button>
     </div>
-    <div class="ttt-grid" id="tttGrid"></div>
-    <div style="margin-top:16px;text-align:center;">
-      <button class="btn" onclick="initTTT()">🔄 New Game</button>
+
+    <!-- Game 3: Word Scramble -->
+    <div id="game3" class="game-screen">
+        <button class="back-btn" onclick="goBack()">🔙 رجوع</button>
+        <h2>🔤 فك الحروف</h2>
+        <p>رتب الحروف المبعثرة لتكوين الكلمة الصحيحة!</p>
+        <div class="score-board" id="word-score">النقاط: 0</div>
+        <h1 id="scrambled-word" style="color: var(--secondary); letter-spacing: 5px;">---</h1>
+        <input type="text" id="word-input" class="game-input" placeholder="اكتب الكلمة هنا">
+        <br>
+        <button class="submit-btn" onclick="checkWord()">تحقق</button>
+        <button class="submit-btn" style="background: #555; color: white;" onclick="nextWord()">تخطي ⏭️</button>
     </div>
-  </section>
 
-  <!-- 2048 -->
-  <section class="game" id="g2048">
-    <h2>🔢 2048</h2>
-    <p class="desc">Use arrow keys (or swipe) to merge tiles. Reach 2048!</p>
-    <div class="stats">
-      <div class="stat">Score: <b id="g2048Score">0</b></div>
-      <div class="stat">Best: <b id="g2048Best">0</b></div>
+    <!-- Game 4: Math Rush -->
+    <div id="game4" class="game-screen">
+        <button class="back-btn" onclick="goBack()">🔙 رجوع</button>
+        <h2>🧮 تحدي الحساب السريع</h2>
+        <p>حل المسائل الرياضية بأسرع وقت! (60 ثانية)</p>
+        <div class="timer" id="math-timer">الوقت: 60</div>
+        <div class="score-board" id="math-score">النقاط: 0</div>
+        <h1 id="math-question" style="color: var(--primary);">5 + 3 = ?</h1>
+        <input type="number" id="math-input" class="game-input" placeholder="النتيجة">
+        <br>
+        <button class="submit-btn" onclick="checkMath()">إرسال</button>
+        <button class="submit-btn" style="background: var(--secondary); color: black;" onclick="startMath()">بدء التحدي</button>
     </div>
-    <div class="g2048" id="g2048Board"></div>
-    <div style="margin-top:16px;text-align:center;">
-      <button class="btn" onclick="init2048()">🔄 New Game</button>
+
+    <!-- Game 5: Speed Click -->
+    <div id="game5" class="game-screen">
+        <button class="back-btn" onclick="goBack()">🔙 رجوع</button>
+        <h2>👆 النقر السريع</h2>
+        <p>انقر على الدائرة أكبر عدد من المرات في 10 ثوانٍ!</p>
+        <div class="timer" id="click-timer">الوقت: 10</div>
+        <div class="score-board" id="click-score">النقرات: 0</div>
+        <div id="click-target" onclick="doClick()">0</div>
+        <button class="submit-btn" onclick="startClick()">ابدأ العد التنازلي</button>
     </div>
-  </section>
 
-  <!-- SNAKE -->
-  <section class="game" id="snake">
-    <h2>🐍 Snake</h2>
-    <p class="desc">Use arrow keys or WASD. Don't hit yourself!</p>
-    <div class="stats">
-      <div class="stat">Score: <b id="snakeScore">0</b></div>
-      <div class="stat">Best: <b id="snakeBest">0</b></div>
-    </div>
-    <canvas id="snakeCanvas" width="400" height="400"></canvas>
-    <div style="margin-top:16px;text-align:center;">
-      <button class="btn" onclick="initSnake()">🔄 New Game</button>
-    </div>
-  </section>
+    <script>
+        // --- Navigation ---
+        function showGame(id) {
+            document.getElementById('main-menu').style.display = 'none';
+            document.querySelectorAll('.game-screen').forEach(g => g.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+        function goBack() {
+            clearAllTimers();
+            document.querySelectorAll('.game-screen').forEach(g => g.classList.remove('active'));
+            document.getElementById('main-menu').style.display = 'block';
+        }
+        let activeTimers = [];
+        function clearAllTimers() { activeTimers.forEach(t => clearTimeout(t)); activeTimers.forEach(t => clearInterval(t)); activeTimers = []; }
 
-  <!-- REACTION -->
-  <section class="game" id="reaction">
-    <h2>⚡ Reaction Time</h2>
-    <p class="desc">Wait for green, then click as fast as you can!</p>
-    <div class="stats">
-      <div class="stat">Last: <b id="reactLast">—</b> ms</div>
-      <div class="stat">Best: <b id="reactBest">—</b> ms</div>
-    </div>
-    <div class="reaction-box idle" id="reactBox">Click to start</div>
-  </section>
+        // --- Game 1: Reaction ---
+        let reactionTimeout, startTime, waitingForClick = false;
+        function handleReaction() {
+            const box = document.getElementById('reaction-box');
+            if (!waitingForClick && box.style.background !== 'red') {
+                box.style.background = 'red';
+                box.textContent = 'انتظر...';
+                document.getElementById('reaction-score').textContent = '';
+                reactionTimeout = setTimeout(() => {
+                    box.style.background = 'green';
+                    box.textContent = 'انقر الآن!';
+                    startTime = Date.now();
+                    waitingForClick = true;
+                }, Math.random() * 3000 + 1500);
+                activeTimers.push(reactionTimeout);
+            } else if (waitingForClick) {
+                const time = Date.now() - startTime;
+                box.style.background = '#333';
+                box.textContent = 'ابدأ';
+                waitingForClick = false;
+                document.getElementById('reaction-score').textContent = `زمن استجابتك: ${time} ميلي ثانية! 🚀`;
+            } else {
+                clearTimeout(reactionTimeout);
+                box.style.background = 'var(--danger)';
+                box.textContent = 'نقرت مبكراً! 😅 انقر للبدء';
+                waitingForClick = false;
+            }
+        }
 
-  <!-- COLOR MATCH -->
-  <section class="game" id="color">
-    <h2>🎨 Color Match (Stroop)</h2>
-    <p class="desc">Click the button matching the COLOR of the word (not what it says)!</p>
-    <div class="stats">
-      <div class="stat">Score: <b id="colorScore">0</b></div>
-      <div class="stat">Time: <b id="colorTime">30</b>s</div>
-    </div>
-    <div class="color-word" id="colorWord">—</div>
-    <div class="color-btns" id="colorBtns"></div>
-    <div style="margin-top:16px;text-align:center;">
-      <button class="btn" onclick="initColor()">🔄 Start</button>
-    </div>
-  </section>
+        // --- Game 2: Whack-a-Mole ---
+        let moleScore = 0, moleTime = 30, moleInterval, moleTimeout;
+        function startMole() {
+            moleScore = 0; moleTime = 30;
+            document.getElementById('mole-score').textContent = 'النقاط: 0';
+            document.getElementById('mole-timer').textContent = 'الوقت: 30';
+            const grid = document.getElementById('mole-grid');
+            grid.innerHTML = '';
+            for(let i=0; i<9; i++) {
+                let hole = document.createElement('div');
+                hole.className = 'mole-hole';
+                hole.onclick = () => hitMole(hole);
+                grid.appendChild(hole);
+            }
+            clearInterval(moleInterval); clearTimeout(moleTimeout);
+            moleInterval = setInterval(() => {
+                moleTime--;
+                document.getElementById('mole-timer').textContent = `الوقت: ${moleTime}`;
+                if(moleTime <= 0) { clearInterval(moleInterval); clearTimeout(moleTimeout); alert(`انتهى الوقت! نقاطك: ${moleScore}`); }
+            }, 1000);
+            activeTimers.push(moleInterval);
+            showMole();
+        }
+        function showMole() {
+            const holes = document.querySelectorAll('.mole-hole');
+            holes.forEach(h => h.classList.remove('active'));
+            const rand = Math.floor(Math.random() * 9);
+            holes[rand].classList.add('active');
+            holes[rand].textContent = '🐹';
+            moleTimeout = setTimeout(showMole, 800);
+            activeTimers.push(moleTimeout);
+        }
+        function hitMole(hole) {
+            if(hole.classList.contains('active')) {
+                moleScore++;
+                document.getElementById('mole-score').textContent = `النقاط: ${moleScore}`;
+                hole.classList.remove('active');
+                hole.textContent = '';
+            }
+        }
 
-  <!-- SCRAMBLE -->
-  <section class="game" id="scramble">
-    <h2>🔤 Word Scramble</h2>
-    <p class="desc">Unscramble the word. Hint: it's a common English word!</p>
-    <div class="stats">
-      <div class="stat">Solved: <b id="scrambleScore">0</b></div>
-    </div>
-    <div class="scramble-word" id="scrambleWord">—</div>
-    <div class="scramble">
-      <input type="text" id="scrambleInput" placeholder="Type your answer..." autocomplete="off">
-    </div>
-    <div class="feedback" id="scrambleFeedback"></div>
-    <div style="text-align:center;">
-      <button class="btn" onclick="checkScramble()">Check</button>
-      <button class="btn" onclick="initScramble()">Skip</button>
-    </div>
-  </section>
+        // --- Game 3: Word Scramble ---
+        const words = ['برمجة', 'تفاحة', 'سيارة', 'هاتف', 'كتاب', 'سماء', 'بحر', 'جبال', 'قمر', 'نجوم'];
+        let currentWord = '', wordScore = 0;
+        function shuffleWord(w) { let a=w.split(''); for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a.join(''); }
+        function nextWord() {
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            let scrambled = shuffleWord(currentWord);
+            while(scrambled === currentWord) scrambled = shuffleWord(currentWord);
+            document.getElementById('scrambled-word').textContent = scrambled;
+            document.getElementById('word-input').value = '';
+        }
+        function checkWord() {
+            if(document.getElementById('word-input').value.trim() === currentWord) {
+                wordScore++;
+                document.getElementById('word-score').textContent = `النقاط: ${wordScore}`;
+                nextWord();
+            } else {
+                alert('إجابة خاطئة! حاول مرة أخرى.');
+            }
+        }
+        nextWord(); // Init
 
-  <!-- MATH -->
-  <section class="game" id="math">
-    <h2>➗ Math Sprint</h2>
-    <p class="desc">Solve as many problems as you can in 60 seconds!</p>
-    <div class="stats">
-      <div class="stat">Score: <b id="mathScore">0</b></div>
-      <div class="stat">Time: <b id="mathTime">60</b>s</div>
-    </div>
-    <div class="math-problem" id="mathProblem">—</div>
-    <div style="text-align:center;">
-      <button class="btn" onclick="initMath()">🔄 Start</button>
-    </div>
-  </section>
-</main>
+        // --- Game 4: Math Rush ---
+        let mathScore = 0, mathTime = 60, mathAnswer = 0, mathInterval;
+        function genMath() {
+            let a = Math.floor(Math.random()*10)+1, b = Math.floor(Math.random()*10)+1;
+            let ops = ['+', '-', '*'];
+            let op = ops[Math.floor(Math.random()*3)];
+            if(op==='+') mathAnswer = a+b;
+            else if(op==='-') { if(b>a){[a,b]=[b,a];} mathAnswer = a-b; }
+            else mathAnswer = a*b;
+            document.getElementById('math-question').textContent = `${a} ${op} ${b} = ?`;
+            document.getElementById('math-input').value = '';
+        }
+        function startMath() {
+            mathScore = 0; mathTime = 60;
+            document.getElementById('math-score').textContent = 'النقاط: 0';
+            clearInterval(mathInterval);
+            mathInterval = setInterval(() => {
+                mathTime--;
+                document.getElementById('math-timer').textContent = `الوقت: ${mathTime}`;
+                if(mathTime <= 0) { clearInterval(mathInterval); alert(`انتهى الوقت! نقاطك: ${mathScore}`); }
+            }, 1000);
+            activeTimers.push(mathInterval);
+            genMath();
+        }
+        function checkMath() {
+            if(parseInt(document.getElementById('math-input').value) === mathAnswer) {
+                mathScore++;
+                document.getElementById('math-score').textContent = `النقاط: ${mathScore}`;
+                genMath();
+            }
+        }
 
-<footer>Made with 💜 — Works 100% offline. No tracking, no network.</footer>
-
-<script>
-/* ========= NAV ========= */
-const games = document.querySelectorAll('.game');
-document.querySelectorAll('#nav button').forEach(b => {
-  b.onclick = () => {
-    document.querySelectorAll('#nav button').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    games.forEach(g => g.classList.remove('active'));
-    document.getElementById(b.dataset.g).classList.add('active');
-  };
-});
-
-/* ========= MEMORY ========= */
-const memEmojis = ['🍎','🍌','🍇','🍓','🍒','🥝','🍍','🥥'];
-let memCards=[], memFlipped=[], memMatched=0, memMoves=0, memLock=false;
-function initMemory(){
-  memMatched=0; memMoves=0; memFlipped=[]; memLock=false;
-  document.getElementById('memMoves').textContent=0;
-  document.getElementById('memPairs').textContent=0;
-  const deck=[...memEmojis,...memEmojis].sort(()=>Math.random()-0.5);
-  const grid=document.getElementById('memGrid');
-  grid.innerHTML='';
-  deck.forEach((e,i)=>{
-    const c=document.createElement('div');
-    c.className='memory-card';
-    c.dataset.emoji=e; c.dataset.idx=i;
-    c.textContent='?';
-    c.onclick=()=>flipMem(c);
-    grid.appendChild(c);
-  });
-}
-function flipMem(c){
-  if(memLock||c.classList.contains('flipped')||c.classList.contains('matched'))return;
-  c.classList.add('flipped');
-  c.textContent=c.dataset.emoji;
-  memFlipped.push(c);
-  if(memFlipped.length===2){
-    memMoves++;
-    document.getElementById('memMoves').textContent=memMoves;
-    memLock=true;
-    const [a,b]=memFlipped;
-    if(a.dataset.emoji===b.dataset.emoji){
-      a.classList.add('matched'); b.classList.add('matched');
-      memMatched++;
-      document.getElementById('memPairs').textContent=memMatched;
-      memFlipped=[]; memLock=false;
-      if(memMatched===8) setTimeout(()=>alert('🎉 You won in '+memMoves+' moves!'),200);
-    } else {
-      setTimeout(()=>{
-        a.classList.remove('flipped'); b.classList.remove('flipped');
-        a.textContent='?'; b.textContent='?';
-        memFlipped=[]; memLock=false;
-      },800);
-    }
-  }
-}
-initMemory();
-
-/* ========= TIC TAC TOE ========= */
-let tttBoard, tttOver;
-function initTTT(){
-  tttBoard=Array(9).fill('');
-  tttOver=false;
-  document.getElementById('tttStatus').textContent='Your turn';
-  const g=document.getElementById('tttGrid');
-  g.innerHTML='';
-  tttBoard.forEach((_,i)=>{
-    const c=document.createElement('div');
-    c.className='ttt-cell';
-    c.onclick=()=>tttMove(i);
-    g.appendChild(c);
-  });
-}
-function tttMove(i){
-  if(tttOver||tttBoard[i])return;
-  tttBoard[i]='X';
-  renderTTT();
-  if(checkTTT('X')){ endTTT('You win! 🎉'); return; }
-  if(tttBoard.every(x=>x)){ endTTT("Draw!"); return; }
-  const ai=tttBestMove();
-  tttBoard[ai]='O';
-  renderTTT();
-  if(checkTTT('O')){ endTTT('AI wins! 🤖'); return; }
-  if(tttBoard.every(x=>x)){ endTTT("Draw!"); return; }
-}
-function renderTTT(){
-  const cells=document.querySelectorAll('.ttt-cell');
-  tttBoard.forEach((v,i)=>{
-    cells[i].textContent=v;
-    cells[i].className='ttt-cell'+(v?' '+v.toLowerCase():'');
-  });
-}
-function endTTT(msg){ tttOver=true; document.getElementById('tttStatus').textContent=msg; }
-const WINS=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-function checkTTT(p){ return WINS.some(w=>w.every(i=>tttBoard[i]===p)); }
-function tttBestMove(){
-  let best=-Infinity, move=0;
-  for(let i=0;i<9;i++){
-    if(!tttBoard[i]){
-      tttBoard[i]='O';
-      const s=minimax(false);
-      tttBoard[i]='';
-      if(s>best){ best=s; move=i; }
-    }
-  }
-  return move;
-}
-function minimax(isMax){
-  if(checkTTT('O'))return 1;
-  if(checkTTT('X'))return -1;
-  if(tttBoard.every(x=>x))return 0;
-  let best=isMax?-Infinity:Infinity;
-  for(let i=0;i<9;i++){
-    if(!tttBoard[i]){
-      tttBoard[i]=isMax?'O':'X';
-      const s=minimax(!isMax);
-      tttBoard[i]='';
-      best=isMax?Math.max(best,s):Math.min(best,s);
-    }
-  }
-  return best;
-}
-initTTT();
-
-/* ========= 2048 ========= */
-let g2048, g2048Score, g2048Best=+localStorage.getItem('g2048Best')||0;
-function init2048(){
-  g2048=Array(4).fill(0).map(()=>Array(4).fill(0));
-  g2048Score=0;
-  document.getElementById('g2048Best').textContent=g2048Best;
-  addTile(); addTile();
-  render2048();
-}
-function addTile(){
-  const empty=[];
-  for(let r=0;r<4;r++)for(let c=0;c<4;c++)if(!g2048[r][c])empty.push([r,c]);
-  if(!empty.length)return;
-  const [r,c]=empty[Math.floor(Math.random()*empty.length)];
-  g2048[r][c]=Math.random()<0.9?2:4;
-}
-function render2048(){
-  const b=document.getElementById('g2048Board');
-  b.innerHTML='';
-  for(let r=0;r<4;r++)for(let c=0;c<4;c++){
-    const t=document.createElement('div');
-    t.className='tile';
-    const v=g2048[r][c];
-    if(v){ t.textContent=v; t.dataset.v=v; }
-    b.appendChild(t);
-  }
-  document.getElementById('g2048Score').textContent=g2048Score;
-  if(g2048Score>g2048Best){
-    g2048Best=g2048Score;
-    localStorage.setItem('g2048Best',g2048Best);
-    document.getElementById('g2048Best').textContent=g2048Best;
-  }
-}
-function slide(row){
-  let a=row.filter(x=>x);
-  for(let i=0;i<a.length-1;i++){
-    if(a[i]===a[i+1]){ a[i]*=2; g2048Score+=a[i]; a[i+1]=0; }
-  }
-  a=a.filter(x=>x);
-  while(a.length<4)a.push(0);
-  return a;
-}
-function move2048(dir){
-  const before=JSON.stringify(g2048);
-  if(dir==='left'){
-    for(let r=0;r<4;r++) g2048[r]=slide(g2048[r]);
-  } else if(dir==='right'){
-    for(let r=0;r<4;r++) g2048[r]=slide(g2048[r].reverse()).reverse();
-  } else if(dir==='up'){
-    for(let c=0;c<4;c++){
-      let col=[g2048[0][c],g2048[1][c],g2048[2][c],g2048[3][c]];
-      col=slide(col);
-      for(let r=0;r<4;r++) g2048[r][c]=col[r];
-    }
-  } else if(dir==='down'){
-    for(let c=0;c<4;c++){
-      let col=[g2048[3][c],g2048[2][c],g2048[1][c],g2048[0][c]];
-      col=slide(col);
-      for(let r=0;r<4;r++) g2048[3-r][c]=col[r];
-    }
-  }
-  if(JSON.stringify(g2048)!==before){ addTile(); render2048(); }
-}
-document.addEventListener('keydown',e=>{
-  if(!document.getElementById('g2048').classList.contains('active'))return;
-  const map={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'};
-  if(map[e.key]){ e.preventDefault(); move2048(map[e.key]); }
-});
-// Swipe support
-let tStart=null;
-document.getElementById('g2048Board').addEventListener('touchstart',e=>{
-  tStart={x:e.touches[0].clientX,y:e.touches[0].clientY};
-});
-document.getElementById('g2048Board').addEventListener('touchend',e=>{
-  if(!tStart)return;
-  const dx=e.changedTouches[0].clientX-tStart.x;
-  const dy=e.changedTouches[0].clientY-tStart.y;
-  if(Math.abs(dx)>Math.abs(dy)){ move2048(dx>0?'right':'left'); }
-  else { move2048(dy>0?'down':'up'); }
-  tStart=null;
-});
-init2048();
-
-/* ========= SNAKE ========= */
-const sCanvas=document.getElementById('snakeCanvas');
-const sCtx=sCanvas.getContext('2d');
-const CELL=20, COLS=20, ROWS=20;
-let snake, food, dir, snakeScore, snakeBest=+localStorage.getItem('snakeBest')||0, snakeLoop, snakeOver;
-function initSnake(){
-  snake=[{x:10,y:10}];
-  dir={x:1,y:0};
-  snakeScore=0; snakeOver=false;
-  placeFood();
-  document.getElementById('snakeScore').textContent=0;
-  document.getElementById('snakeBest').textContent=snakeBest;
-  if(snakeLoop) clearInterval(snakeLoop);
-  snakeLoop=setInterval(snakeStep,100);
-}
-function placeFood(){
-  while(true){
-    const f={x:Math.floor(Math.random()*COLS),y:Math.floor(Math.random()*ROWS)};
-    if(!snake.some(s=>s.x===f.x&&s.y===f.y)){ food=f; return; }
-  }
-}
-function snakeStep(){
-  if(snakeOver)return;
-  const head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
-  if(head.x<0||head.x>=COLS||head.y<0||head.y>=ROWS||snake.some(s=>s.x===head.x&&s.y===head.y)){
-    snakeOver=true;
-    clearInterval(snakeLoop);
-    if(snakeScore>snakeBest){ snakeBest=snakeScore; localStorage.setItem('snakeBest',snakeBest); }
-    drawSnake();
-    sCtx.fillStyle='rgba(0,0,0,0.7)';
-    sCtx.fillRect(0,0,sCanvas.width,sCanvas.height);
-    sCtx.fillStyle='white';
-    sCtx.font='bold 24px sans-serif';
-    sCtx.textAlign='center';
-    sCtx.fillText('Game Over',sCanvas.width/2,sCanvas.height/2);
-    return;
-  }
-  snake.unshift(head);
-  if(head.x===food.x&&head.y===food.y){
-    snakeScore++;
-    document.getElementById('snakeScore').textContent=snakeScore;
-    placeFood();
-  } else snake.pop();
-  drawSnake();
-}
-function drawSnake(){
-  sCtx.fillStyle='#1a1f3a';
-  sCtx.fillRect(0,0,sCanvas.width,sCanvas.height);
-  sCtx.fillStyle='#f87171';
-  sCtx.beginPath();
-  sCtx.arc(food.x*CELL+CELL/2,food.y*CELL+CELL/2,CELL/2-2,0,Math.PI*2);
-  sCtx.fill();
-  snake.forEach((s,i)=>{
-    sCtx.fillStyle=i===0?'#00d4ff':'#7c5cff';
-    sCtx.fillRect(s.x*CELL+1,s.y*CELL+1,CELL-2,CELL-2);
-  });
-}
-document.addEventListener('keydown',e=>{
-  if(!document.getElementById('snake').classList.contains('active'))return;
-  const k=e.key.toLowerCase();
-  if((k==='arrowup'||k==='w')&&dir.y!==1)dir={x:0,y:-1};
-  else if((k==='arrowdown'||k==='s')&&dir.y!==-1)dir={x:0,y:1};
-  else if((k==='arrowleft'||k==='a')&&dir.x!==1)dir={x:-1,y:0};
-  else if((k==='arrowright'||k==='d')&&dir.x!==-1)dir={x:1,y:0};
-});
-initSnake();
-
-/* ========= REACTION ========= */
-let reactState='idle', reactTimer, reactStart, reactLast=null, reactBest=+localStorage.getItem('reactBest')||0;
-const rBox=document.getElementById('reactBox');
-document.getElementById('reactBest').textContent=reactBest||'—';
-rBox.onclick=()=>{
-  if(reactState==='idle'){
-    reactState='wait';
-    rBox.className='reaction-box wait';
-    rBox.textContent='Wait for green...';
-    const delay=1500+Math.random()*3000;
-    reactTimer=setTimeout(()=>{
-      reactState='ready';
-      rBox.className='reaction-box ready';
-      rBox.textContent='CLICK NOW!';
-      reactStart=performance.now();
-    },delay);
-  } else if(reactState==='wait'){
-    clearTimeout(reactTimer);
-    reactState='idle';
-    rBox.className='reaction-box idle';
-    rBox.textContent='Too early! Click to retry';
-  } else if(reactState==='ready'){
-    const t=Math.round(performance.now()-reactStart);
-    reactLast=t;
-    document.getElementById('reactLast').textContent=t;
-    if(!reactBest||t<reactBest){ reactBest=t; localStorage.setItem('reactBest',reactBest); document.getElementById('reactBest').textContent=t; }
-    reactState='idle';
-    rBox.className='reaction-box idle';
-    rBox.textContent=t+' ms — Click to retry';
-  }
-};
-
-/* ========= COLOR MATCH ========= */
-const colorList=[
-  {name:'RED',hex:'#ef4444'},{name:'BLUE',hex:'#3b82f6'},
-  {name:'GREEN',hex:'#22c55e'},{name:'YELLOW',hex:'#eab308'},
-  {name:'PURPLE',hex:'#a855f7'},{name:'ORANGE',hex:'#f97316'}
-];
-let colorScore=0, colorTime=30, colorTimer, colorCurrent;
-function initColor(){
-  colorScore=0; colorTime=30;
-  document.getElementById('colorScore').textContent=0;
-  document.getElementById('colorTime').textContent=30;
-  if(colorTimer) clearInterval(colorTimer);
-  colorTimer=setInterval(()=>{
-    colorTime--;
-    document.getElementById('colorTime').textContent=colorTime;
-    if(colorTime<=0){
-      clearInterval(colorTimer);
-      document.getElementById('colorWord').textContent='⏰ Time up! Score: '+colorScore;
-      document.getElementById('colorBtns').innerHTML='';
-    }
-  },1000);
-  nextColor();
-}
-function nextColor(){
-  if(colorTime<=0)return;
-  const word=colorList[Math.floor(Math.random()*colorList.length)];
-  const ink=colorList[Math.floor(Math.random()*colorList.length)];
-  colorCurrent=ink.name;
-  const w=document.getElementById('colorWord');
-  w.textContent=word.name;
-  w.style.color=ink.hex;
-  const btns=document.getElementById('colorBtns');
-  btns.innerHTML='';
-  const opts=[...colorList].sort(()=>Math.random()-0.5).slice(0,4);
-  if(!opts.find(o=>o.name===colorCurrent)) opts[0]={name:colorCurrent,hex:colorList.find(c=>c.name===colorCurrent).hex};
-  opts.sort(()=>Math.random()-0.5).forEach(o=>{
-    const b=document.createElement('button');
-    b.textContent=o.name;
-    b.style.background=o.hex;
-    b.onclick=()=>{
-      if(o.name===colorCurrent){ colorScore++; document.getElementById('colorScore').textContent=colorScore; }
-      nextColor();
-    };
-    btns.appendChild(b);
-  });
-}
-initColor();
-
-/* ========= WORD SCRAMBLE ========= */
-const wordList=['planet','guitar','jungle','rocket','castle','breeze','dragon','forest','silver','castle','window','garden','coffee','island','marble','puzzle','rocket','sunset','temple','voyage'];
-let scrambleTarget='';
-function scramble(w){
-  let a=w.split('');
-  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
-  return a.join('')===w?scramble(w):a.join('');
-}
-function initScramble(){
-  scrambleTarget=wordList[Math.floor(Math.random()*wordList.length)];
-  document.getElementById('scrambleWord').textContent=scramble(scrambleTarget).toUpperCase();
-  document.getElementById('scrambleInput').value='';
-  document.getElementById('scrambleFeedback').textContent='';
-  document.getElementById('scrambleInput').focus();
-}
-function checkScramble(){
-  const v=document.getElementById('scrambleInput').value.trim().toLowerCase();
-  const fb=document.getElementById('scrambleFeedback');
-  if(v===scrambleTarget){
-    fb.className='feedback good';
-    fb.textContent='✓ Correct!';
-    let s=+document.getElementById('scrambleScore').textContent+1;
-    document.getElementById('scrambleScore').textContent=s;
-    setTimeout(initScramble,800);
-  } else {
-    fb.className='feedback bad';
-    fb.textContent='✗ Try again!';
-  }
-}
-document.getElementById('scrambleInput').addEventListener('keydown',e=>{
-  if(e.key==='Enter') checkScramble();
-});
-initScramble();
-
-/* ========= MATH SPRINT ========= */
-let mathScore=0, mathTime=60, mathTimer, mathAnswer;
-function initMath(){
-  mathScore=0; mathTime=60;
-  document.getElementById('mathScore').textContent=0;
-  document.getElementById('mathTime').textContent=60;
-  if(mathTimer) clearInterval(mathTimer);
-  mathTimer=setInterval(()=>{
-    mathTime--;
-    document.getElementById('mathTime').textContent=mathTime;
-    if(mathTime<=0){
-      clearInterval(mathTimer);
-      document.getElementById('mathProblem').innerHTML='⏰ Final Score: <b>'+mathScore+'</b>';
-    }
-  },1000);
-  nextMath();
-}
-function nextMath(){
-  if(mathTime<=0)return;
-  const ops=['+','-','×'];
-  const op=ops[Math.floor(Math.random()*ops.length)];
-  let a,b,ans;
-  if(op==='+'){ a=Math.floor(Math.random()*50)+1; b=Math.floor(Math.random()*50)+1; ans=a+b; }
-  else if(op==='-'){ a=Math.floor(Math.random()*50)+10; b=Math.floor(Math.random()*a)+1; ans=a-b; }
-  else { a=Math.floor(Math.random()*12)+2; b=Math.floor(Math.random()*12)+2; ans=a*b; }
-  mathAnswer=ans;
-  document.getElementById('mathProblem').innerHTML=a+' '+op+' '+b+' = <input type="number" id="mathInput" autofocus>';
-  const inp=document.getElementById('mathInput');
-  inp.focus();
-  inp.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){
-      if(+inp.value===mathAnswer){
-        mathScore++;
-        document.getElementById('mathScore').textContent=mathScore;
-        nextMath();
-      } else {
-        inp.style.outline='2px solid var(--bad)';
-        setTimeout(()=>inp.style.outline='',300);
-      }
-    }
-  });
-}
-initMath();
-</script>
+        // --- Game 5: Speed Click ---
+        let clicks = 0, clickTime = 10, clickInterval;
+        function startClick() {
+            clicks = 0; clickTime = 10;
+            document.getElementById('click-score').textContent = 'النقرات: 0';
+            document.getElementById('click-target').textContent = '0';
+            clearInterval(clickInterval);
+            clickInterval = setInterval(() => {
+                clickTime--;
+                document.getElementById('click-timer').textContent = `الوقت: ${clickTime}`;
+                if(clickTime <= 0) { clearInterval(clickInterval); alert(`انتهى الوقت! نقراتك: ${clicks}`); }
+            }, 1000);
+            activeTimers.push(clickInterval);
+        }
+        function doClick() {
+            if(clickTime < 10 && clickTime > 0) {
+                clicks++;
+                document.getElementById('click-score').textContent = `النقرات: ${clicks}`;
+                document.getElementById('click-target').textContent = clicks;
+            }
+        }
+    </script>
 </body>
 </html>
