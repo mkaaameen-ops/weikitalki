@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Passport Photo Studio</title>
+    
+    <!-- Load the Global UMD bundle instead of an ES Module to bypass browser CORS script-loading blocks -->
+    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.4/dist/index.js"></script>
+
     <style>
         * {
             box-sizing: border-box;
@@ -302,7 +306,7 @@
                 <h1>AI Passport Photo Studio</h1>
             </div>
             <div class="privacy-badge">
-                🛡️ 100% Local AI – Secure Private Canvas
+                🛡️ 100% Secure Local AI Studio
             </div>
         </header>
 
@@ -348,21 +352,9 @@
         </div>
     </div>
 
-    <script type="module">
-        let removeBackground;
-
-        // Dynamic fallback loader targeting structural assets across unpkg/jsdelivr networks
-        async function initEngine() {
-            try {
-                const module = await import("https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.4/dist/background-removal.esm.js");
-                removeBackground = module.removeBackground;
-                return "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.4/dist/";
-            } catch (e) {
-                const module = await import("https://unpkg.com/@imgly/background-removal@1.4.4/dist/background-removal.esm.js");
-                removeBackground = module.removeBackground;
-                return "https://unpkg.com/@imgly/background-removal@1.4.4/dist/";
-            }
-        }
+    <script>
+        // Access function from global window context namespace established by script tag
+        const removeBackground = window['imglyBackgroundRemoval'] ? window['imglyBackgroundRemoval'].removeBackground : null;
 
         const uploadCard = document.getElementById('uploadCard');
         const imageInput = document.getElementById('imageInput');
@@ -396,6 +388,11 @@
         });
 
         async function handleFile(file) {
+            if (!removeBackground) {
+                statusMessage.innerHTML = "❌ <strong>Error:</strong> The background removal library failed to initialize from CDN source. Check your web connection status.";
+                return;
+            }
+
             if (!file.type.startsWith('image/')) {
                 alert('Please upload an image file.');
                 return;
@@ -406,26 +403,23 @@
             originalViewport.innerHTML = `<img src="${originalUrl}" alt="Original">`;
 
             statusContainer.classList.add('loading');
-            statusMessage.textContent = "Connecting to AI background framework...";
+            statusMessage.textContent = "🤖 Loading local AI modules... (Takes ~10-15 seconds on initial run)";
 
             try {
-                const basePath = await initEngine();
-                statusMessage.textContent = "🤖 Model downloading... (First run takes ~15 seconds to cache layers)";
-
+                // Route engine to grab underlying wasm execution bundles from standard relative CDN location 
                 const cleanPngBlob = await removeBackground(file, {
-                    publicPath: basePath,
-                    fetchArgs: { mode: 'cors' }, // Force clean cross-origin fetching rules
+                    publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.4/dist/",
                     progress: (key, current, total) => {
                         const pct = Math.round((current / total) * 100);
                         if (key === 'model') {
-                            statusMessage.textContent = `📦 Fetching neural architecture weights... ${pct}%`;
+                            statusMessage.textContent = `📦 Downloading neural weights... ${pct}%`;
                         } else if (key === 'inference') {
-                            statusMessage.textContent = `🧠 Stripping portrait backgrounds... ${pct}%`;
+                            statusMessage.textContent = `🧠 Segregating target canvas elements... ${pct}%`;
                         }
                     }
                 });
 
-                statusMessage.textContent = "🎨 Rendering crisp white photo passport dimensions...";
+                statusMessage.textContent = "🎨 Finalizing white backing composite vectors...";
 
                 const fullCanvas = await compositeOnWhite(cleanPngBlob);
                 whiteBgBlob = await canvasToBlob(fullCanvas);
@@ -437,16 +431,15 @@
                 processedViewport.innerHTML = `<img src="${processedUrl}" alt="Processed ID">`;
 
                 statusContainer.classList.remove('loading');
-                statusMessage.textContent = "✅ Portrait parsed successfully! Ready for use.";
+                statusMessage.textContent = "✅ Image processing completed successfully!";
                 btnDownloadFull.disabled = false;
                 btnDownloadPassport.disabled = false;
                 btnReset.disabled = false;
 
             } catch (error) {
-                console.error("AI Studio Debug Log:", error);
+                console.error("Internal Log Error Details:", error);
                 statusContainer.classList.remove('loading');
-                // Informational printout identifying precise breakdown metrics (CORS vs Security Context)
-                statusMessage.innerHTML = `❌ <strong>Execution Blocked:</strong> ${error.message || 'Asset loading failure'}.<br><span style="font-size:0.8rem; color:var(--text-muted);">Tip: Double check you are running this page from an active local host web server environment (like VS Code Live Server) or secure HTTPS context, as local file systems block background WASM components.</span>`;
+                statusMessage.innerHTML = `❌ <strong>Processing Engine Error:</strong> ${error.message || 'Model initiation failure'}.<br><span style="font-size:0.8rem; color:var(--text-muted);">Ensure your browser allows cross-origin requests for WebAssembly components or use VS Code Live Server / Localhost.</span>`;
                 btnReset.disabled = false;
             }
         }
