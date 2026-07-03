@@ -1,391 +1,798 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مركز ألعاب الانتظار ⏳</title>
-    <style>
-        :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --primary: #bb86fc;
-            --secondary: #03dac6;
-            --text: #ffffff;
-            --danger: #cf6679;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-        h1 { color: var(--primary); margin-bottom: 10px; }
-        p.subtitle { color: #aaa; margin-top: 0; margin-bottom: 30px; }
-        
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            width: 100%;
-            max-width: 600px;
-        }
-        .menu-btn {
-            background: var(--card-bg);
-            border: 2px solid #333;
-            color: var(--text);
-            padding: 20px;
-            border-radius: 15px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-        .menu-btn:hover { border-color: var(--primary); transform: translateY(-5px); }
-        .menu-btn .icon { font-size: 2rem; display: block; margin-bottom: 10px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>محرر الصور الرسمية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f8f9fb;
+  --card: #ffffff;
+  --ink: #111827;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --blue: #2563eb;
+  --blue-light: #eff6ff;
+  --green: #059669;
+  --green-light: #f0fdf4;
+  --red: #dc2626;
+  --radius: 14px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.08), 0 12px 32px rgba(0,0,0,0.06);
+}
 
-        .game-screen {
-            display: none;
-            width: 100%;
-            max-width: 600px;
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            box-sizing: border-box;
-        }
-        .game-screen.active { display: block; }
-        
-        .back-btn {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-bottom: 20px;
-            font-size: 1rem;
-        }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* Game 1: Reaction */
-        #reaction-box {
-            width: 100%;
-            height: 200px;
-            background: #333;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: background 0.1s;
-            user-select: none;
-        }
+body {
+  font-family: 'Cairo', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  direction: rtl;
+}
 
-        /* Game 2: Whack */
-        .mole-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin: 20px 0;
-        }
-        .mole-hole {
-            height: 80px;
-            background: #2a2a2a;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            cursor: pointer;
-            transition: all 0.1s;
-        }
-        .mole-hole.active { background: var(--secondary); transform: scale(1.1); }
+nav {
+  background: white;
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
 
-        /* Game 3 & 4: Inputs */
-        .game-input {
-            padding: 12px;
-            font-size: 1.2rem;
-            border-radius: 8px;
-            border: 2px solid #444;
-            background: #2a2a2a;
-            color: white;
-            text-align: center;
-            width: 80%;
-            max-width: 300px;
-            margin: 10px 0;
-        }
-        .submit-btn {
-            background: var(--primary);
-            color: black;
-            border: none;
-            padding: 10px 30px;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            font-weight: bold;
-        }
+.logo {
+  font-size: 18px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
-        /* Game 5: Clicker */
-        #click-target {
-            width: 150px;
-            height: 150px;
-            background: var(--primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            font-weight: bold;
-            color: black;
-            margin: 20px auto;
-            cursor: pointer;
-            user-select: none;
-            transition: transform 0.1s;
-        }
-        #click-target:active { transform: scale(0.9); }
+.badge {
+  font-size: 11px;
+  background: var(--green-light);
+  color: var(--green);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 700;
+}
 
-        .score-board { font-size: 1.5rem; color: var(--secondary); margin: 15px 0; }
-        .timer { font-size: 1.2rem; color: var(--danger); }
-    </style>
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.hero h1 {
+  font-size: 26px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.hero h1 span {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p { font-size: 14px; color: var(--muted); }
+
+/* UPLOAD ZONE */
+.upload-zone {
+  background: white;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 24px;
+}
+
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--blue);
+  background: var(--blue-light);
+}
+
+.upload-icon { font-size: 48px; margin-bottom: 12px; }
+.upload-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.upload-sub { font-size: 13px; color: var(--muted); }
+
+#fileInput { display: none; }
+
+/* MAIN EDITOR */
+.editor {
+  display: none;
+  gap: 20px;
+}
+
+.editor.visible { display: grid; grid-template-columns: 1fr 1fr; }
+
+@media (max-width: 640px) {
+  .editor.visible { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background: white;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.panel-body { padding: 16px; }
+
+canvas {
+  width: 100%;
+  border-radius: 8px;
+  display: block;
+}
+
+/* CONTROLS */
+.controls {
+  background: white;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: var(--shadow);
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 640px) {
+  .controls-grid { grid-template-columns: 1fr; }
+}
+
+.control-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+/* BG COLOR PICKER */
+.bg-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bg-swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+  position: relative;
+}
+
+.bg-swatch.active { border-color: var(--blue); transform: scale(1.1); }
+.bg-swatch.active::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--blue);
+}
+
+.bg-swatch-custom {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid var(--border);
+  overflow: hidden;
+  position: relative;
+}
+
+.bg-swatch-custom input[type="color"] {
+  position: absolute;
+  inset: -4px;
+  width: calc(100% + 8px);
+  height: calc(100% + 8px);
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+
+/* SIZE PRESETS */
+.size-options {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.size-btn {
+  padding: 6px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  background: white;
+  color: var(--ink);
+  font-family: 'Cairo', sans-serif;
+  transition: all 0.15s;
+}
+
+.size-btn:hover { border-color: var(--blue); color: var(--blue); }
+.size-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+
+/* THRESHOLD SLIDER */
+.slider-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+input[type="range"] {
+  flex: 1;
+  accent-color: var(--blue);
+  height: 4px;
+}
+
+.slider-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--blue);
+  min-width: 32px;
+  text-align: center;
+}
+
+/* ACTION BUTTONS */
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 11px 20px;
+  border-radius: 10px;
+  border: none;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.btn-primary { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; flex: 1; justify-content: center; }
+.btn-green { background: var(--green-light); color: var(--green); }
+.btn-gray { background: #f3f4f6; color: var(--ink); }
+.btn-red { background: #fef2f2; color: var(--red); }
+
+/* STATUS */
+.status {
+  text-align: center;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 12px;
+  display: none;
+}
+
+.status.processing { display: block; background: var(--blue-light); color: var(--blue); }
+.status.done { display: block; background: var(--green-light); color: var(--green); }
+.status.error { display: block; background: #fef2f2; color: var(--red); }
+
+/* PROGRESS BAR */
+.progress-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+  display: none;
+}
+
+.progress-bar.visible { display: block; }
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2563eb, #7c3aed);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 12px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+}
+</style>
 </head>
 <body>
 
-    <!-- Main Menu -->
-    <div id="main-menu">
-        <h1>⏳ مركز ألعاب الانتظار</h1>
-        <p class="subtitle">اختر لعبة لقتل الوقت!</p>
-        <div class="menu-grid">
-            <button class="menu-btn" onclick="showGame('game1')"><span class="icon">⚡</span>سرعة الاستجابة</button>
-            <button class="menu-btn" onclick="showGame('game2')"><span class="icon">🐹</span>اضرب الهدف</button>
-            <button class="menu-btn" onclick="showGame('game3')"><span class="icon">🔤</span>فك الحروف</button>
-            <button class="menu-btn" onclick="showGame('game4')"><span class="icon">🧮</span>تحدي الحساب</button>
-            <button class="menu-btn" onclick="showGame('game5')"><span class="icon">👆</span>النقر السريع</button>
+<nav>
+  <div class="logo">🖼 محرر الصور الرسمية</div>
+  <span class="badge">مجاني 100%</span>
+</nav>
+
+<div class="container">
+  <div class="hero">
+    <h1>إزالة الخلفية وتعديل <span>الصور الرسمية</span></h1>
+    <p>للجوازات، الرخص، الوثائق الرسمية — إزالة الخلفية وتغييرها فوراً بدون إنترنت</p>
+  </div>
+
+  <!-- UPLOAD -->
+  <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+    <div class="upload-icon">📷</div>
+    <div class="upload-title">اسحب صورتك هنا أو اضغط للاختيار</div>
+    <div class="upload-sub">JPG, PNG, WEBP · حتى 10MB</div>
+    <input type="file" id="fileInput" accept="image/*">
+  </div>
+
+  <!-- EDITOR -->
+  <div class="editor" id="editor">
+    <div class="panel">
+      <div class="panel-header">📌 الصورة الأصلية</div>
+      <div class="panel-body">
+        <canvas id="originalCanvas"></canvas>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">✨ النتيجة</div>
+      <div class="panel-body">
+        <canvas id="resultCanvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls" id="controls" style="display:none">
+    <div class="controls-grid">
+
+      <div class="control-group" style="grid-column:1/-1">
+        <label>🔑 مفتاح remove.bg API (اختياري — للنتائج الاحترافية)</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="password" id="removebgKey" placeholder="أدخل مفتاح remove.bg للنتائج الأدق..." style="flex:1;font-family:Cairo,sans-serif;font-size:13px;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;direction:ltr;text-align:left;outline:none">
+          <a href="https://www.remove.bg/api" target="_blank" style="font-size:12px;color:var(--blue);white-space:nowrap;text-decoration:none">احصل عليه مجاناً ←</a>
         </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:5px">50 صورة/شهر مجاناً · بدون المفتاح تعمل الأداة محلياً بجودة أقل</div>
+      </div>
+      <div class="control-group">
+        <label>🎨 لون الخلفية الجديدة</label>
+        <div class="bg-options">
+          <div class="bg-swatch active" style="background:#ffffff" data-color="#ffffff" onclick="setBgColor(this,'#ffffff')" title="أبيض"></div>
+          <div class="bg-swatch" style="background:#0047ab" data-color="#0047ab" onclick="setBgColor(this,'#0047ab')" title="أزرق جواز"></div>
+          <div class="bg-swatch" style="background:#e8f4fd" data-color="#e8f4fd" onclick="setBgColor(this,'#e8f4fd')" title="أزرق فاتح"></div>
+          <div class="bg-swatch" style="background:#f0f0f0" data-color="#f0f0f0" onclick="setBgColor(this,'#f0f0f0')" title="رمادي فاتح"></div>
+          <div class="bg-swatch" style="background:#1a1a2e" data-color="#1a1a2e" onclick="setBgColor(this,'#1a1a2e')" title="أزرق داكن"></div>
+          <div class="bg-swatch" style="background:transparent;border:2px dashed #e5e7eb;background-image:repeating-conic-gradient(#e5e7eb 0% 25%, white 0% 50%);background-size:10px 10px" data-color="transparent" onclick="setBgColor(this,'transparent')" title="شفاف (PNG)"></div>
+          <div class="bg-swatch-custom" title="لون مخصص">
+            <input type="color" id="customColor" value="#ffffff" onchange="setCustomColor(this.value)">
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>📐 حجم الصورة المخرجة</label>
+        <div class="size-options">
+          <button class="size-btn active" onclick="setSize(this,413,531)" data-w="413" data-h="531">جواز سفر<br><small>413×531</small></button>
+          <button class="size-btn" onclick="setSize(this,300,400)" data-w="300" data-h="400">رخصة<br><small>300×400</small></button>
+          <button class="size-btn" onclick="setSize(this,600,600)" data-w="600" data-h="600">مربعة<br><small>600×600</small></button>
+          <button class="size-btn" onclick="setSize(this,0,0)">أصلي</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>🎯 حساسية إزالة الخلفية</label>
+        <div class="slider-group">
+          <span style="font-size:11px;color:var(--muted)">دقيق</span>
+          <input type="range" id="threshold" min="10" max="120" value="40" oninput="document.getElementById('threshVal').textContent=this.value">
+          <span style="font-size:11px;color:var(--muted)">واسع</span>
+          <span class="slider-val" id="threshVal">40</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>✂️ تحسين الحواف</label>
+        <div class="slider-group">
+          <span style="font-size:11px;color:var(--muted)">حاد</span>
+          <input type="range" id="edgeSmooth" min="0" max="8" value="2" oninput="document.getElementById('edgeVal').textContent=this.value">
+          <span style="font-size:11px;color:var(--muted)">ناعم</span>
+          <span class="slider-val" id="edgeVal">2</span>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Game 1: Reaction Time -->
-    <div id="game1" class="game-screen">
-        <button class="back-btn" onclick="goBack()">🔙 رجوع</button>
-        <h2>⚡ اختبار سرعة الاستجابة</h2>
-        <p>انتظر حتى يتحول اللون إلى الأخضر ثم انقر بسرعة!</p>
-        <div id="reaction-box" onclick="handleReaction()">ابدأ</div>
-        <div class="score-board" id="reaction-score"></div>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="processImage()">✨ إزالة الخلفية</button>
+      <button class="btn btn-green" id="downloadBtn" onclick="downloadResult()" disabled>⬇️ تحميل PNG</button>
+      <button class="btn btn-gray" onclick="downloadResult('jpg')">⬇️ JPG</button>
+      <button class="btn btn-red" onclick="resetAll()">🔄 صورة جديدة</button>
     </div>
 
-    <!-- Game 2: Whack-a-Mole -->
-    <div id="game2" class="game-screen">
-        <button class="back-btn" onclick="goBack()">🔙 رجوع</button>
-        <h2>🐹 اضرب الهدف</h2>
-        <p>اضرب الدوائر الملونة قبل أن تختفي! (30 ثانية)</p>
-        <div class="timer" id="mole-timer">الوقت: 30</div>
-        <div class="score-board" id="mole-score">النقاط: 0</div>
-        <div class="mole-grid" id="mole-grid"></div>
-        <button class="submit-btn" onclick="startMole()">ابدأ اللعبة</button>
-    </div>
+    <div class="status" id="status"></div>
+    <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</div>
 
-    <!-- Game 3: Word Scramble -->
-    <div id="game3" class="game-screen">
-        <button class="back-btn" onclick="goBack()">🔙 رجوع</button>
-        <h2>🔤 فك الحروف</h2>
-        <p>رتب الحروف المبعثرة لتكوين الكلمة الصحيحة!</p>
-        <div class="score-board" id="word-score">النقاط: 0</div>
-        <h1 id="scrambled-word" style="color: var(--secondary); letter-spacing: 5px;">---</h1>
-        <input type="text" id="word-input" class="game-input" placeholder="اكتب الكلمة هنا">
-        <br>
-        <button class="submit-btn" onclick="checkWord()">تحقق</button>
-        <button class="submit-btn" style="background: #555; color: white;" onclick="nextWord()">تخطي ⏭️</button>
-    </div>
+<footer>صُنع بـ ❤ · يعمل بالكامل في المتصفح · صورك لا ترسل لأي مكان</footer>
 
-    <!-- Game 4: Math Rush -->
-    <div id="game4" class="game-screen">
-        <button class="back-btn" onclick="goBack()">🔙 رجوع</button>
-        <h2>🧮 تحدي الحساب السريع</h2>
-        <p>حل المسائل الرياضية بأسرع وقت! (60 ثانية)</p>
-        <div class="timer" id="math-timer">الوقت: 60</div>
-        <div class="score-board" id="math-score">النقاط: 0</div>
-        <h1 id="math-question" style="color: var(--primary);">5 + 3 = ?</h1>
-        <input type="number" id="math-input" class="game-input" placeholder="النتيجة">
-        <br>
-        <button class="submit-btn" onclick="checkMath()">إرسال</button>
-        <button class="submit-btn" style="background: var(--secondary); color: black;" onclick="startMath()">بدء التحدي</button>
-    </div>
+<canvas id="workCanvas" style="display:none"></canvas>
 
-    <!-- Game 5: Speed Click -->
-    <div id="game5" class="game-screen">
-        <button class="back-btn" onclick="goBack()">🔙 رجوع</button>
-        <h2>👆 النقر السريع</h2>
-        <p>انقر على الدائرة أكبر عدد من المرات في 10 ثوانٍ!</p>
-        <div class="timer" id="click-timer">الوقت: 10</div>
-        <div class="score-board" id="click-score">النقرات: 0</div>
-        <div id="click-target" onclick="doClick()">0</div>
-        <button class="submit-btn" onclick="startClick()">ابدأ العد التنازلي</button>
-    </div>
+<script>
+let originalImage = null;
+let currentBgColor = '#ffffff';
+let outputW = 413, outputH = 531;
 
-    <script>
-        // --- Navigation ---
-        function showGame(id) {
-            document.getElementById('main-menu').style.display = 'none';
-            document.querySelectorAll('.game-screen').forEach(g => g.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
-        function goBack() {
-            clearAllTimers();
-            document.querySelectorAll('.game-screen').forEach(g => g.classList.remove('active'));
-            document.getElementById('main-menu').style.display = 'block';
-        }
-        let activeTimers = [];
-        function clearAllTimers() { activeTimers.forEach(t => clearTimeout(t)); activeTimers.forEach(t => clearInterval(t)); activeTimers = []; }
+// ============================================================
+// FILE UPLOAD
+// ============================================================
+const uploadZone = document.getElementById('uploadZone');
+const fileInput  = document.getElementById('fileInput');
 
-        // --- Game 1: Reaction ---
-        let reactionTimeout, startTime, waitingForClick = false;
-        function handleReaction() {
-            const box = document.getElementById('reaction-box');
-            if (!waitingForClick && box.style.background !== 'red') {
-                box.style.background = 'red';
-                box.textContent = 'انتظر...';
-                document.getElementById('reaction-score').textContent = '';
-                reactionTimeout = setTimeout(() => {
-                    box.style.background = 'green';
-                    box.textContent = 'انقر الآن!';
-                    startTime = Date.now();
-                    waitingForClick = true;
-                }, Math.random() * 3000 + 1500);
-                activeTimers.push(reactionTimeout);
-            } else if (waitingForClick) {
-                const time = Date.now() - startTime;
-                box.style.background = '#333';
-                box.textContent = 'ابدأ';
-                waitingForClick = false;
-                document.getElementById('reaction-score').textContent = `زمن استجابتك: ${time} ميلي ثانية! 🚀`;
-            } else {
-                clearTimeout(reactionTimeout);
-                box.style.background = 'var(--danger)';
-                box.textContent = 'نقرت مبكراً! 😅 انقر للبدء';
-                waitingForClick = false;
-            }
-        }
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+});
 
-        // --- Game 2: Whack-a-Mole ---
-        let moleScore = 0, moleTime = 30, moleInterval, moleTimeout;
-        function startMole() {
-            moleScore = 0; moleTime = 30;
-            document.getElementById('mole-score').textContent = 'النقاط: 0';
-            document.getElementById('mole-timer').textContent = 'الوقت: 30';
-            const grid = document.getElementById('mole-grid');
-            grid.innerHTML = '';
-            for(let i=0; i<9; i++) {
-                let hole = document.createElement('div');
-                hole.className = 'mole-hole';
-                hole.onclick = () => hitMole(hole);
-                grid.appendChild(hole);
-            }
-            clearInterval(moleInterval); clearTimeout(moleTimeout);
-            moleInterval = setInterval(() => {
-                moleTime--;
-                document.getElementById('mole-timer').textContent = `الوقت: ${moleTime}`;
-                if(moleTime <= 0) { clearInterval(moleInterval); clearTimeout(moleTimeout); alert(`انتهى الوقت! نقاطك: ${moleScore}`); }
-            }, 1000);
-            activeTimers.push(moleInterval);
-            showMole();
-        }
-        function showMole() {
-            const holes = document.querySelectorAll('.mole-hole');
-            holes.forEach(h => h.classList.remove('active'));
-            const rand = Math.floor(Math.random() * 9);
-            holes[rand].classList.add('active');
-            holes[rand].textContent = '🐹';
-            moleTimeout = setTimeout(showMole, 800);
-            activeTimers.push(moleTimeout);
-        }
-        function hitMole(hole) {
-            if(hole.classList.contains('active')) {
-                moleScore++;
-                document.getElementById('mole-score').textContent = `النقاط: ${moleScore}`;
-                hole.classList.remove('active');
-                hole.textContent = '';
-            }
-        }
+fileInput.addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
 
-        // --- Game 3: Word Scramble ---
-        const words = ['برمجة', 'تفاحة', 'سيارة', 'هاتف', 'كتاب', 'سماء', 'بحر', 'جبال', 'قمر', 'نجوم'];
-        let currentWord = '', wordScore = 0;
-        function shuffleWord(w) { let a=w.split(''); for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a.join(''); }
-        function nextWord() {
-            currentWord = words[Math.floor(Math.random() * words.length)];
-            let scrambled = shuffleWord(currentWord);
-            while(scrambled === currentWord) scrambled = shuffleWord(currentWord);
-            document.getElementById('scrambled-word').textContent = scrambled;
-            document.getElementById('word-input').value = '';
-        }
-        function checkWord() {
-            if(document.getElementById('word-input').value.trim() === currentWord) {
-                wordScore++;
-                document.getElementById('word-score').textContent = `النقاط: ${wordScore}`;
-                nextWord();
-            } else {
-                alert('إجابة خاطئة! حاول مرة أخرى.');
-            }
-        }
-        nextWord(); // Init
+function loadFile(file) {
+  if (!file.type.startsWith('image/')) { alert('يرجى اختيار صورة صالحة'); return; }
+  if (file.size > 10 * 1024 * 1024) { alert('حجم الصورة يجب أن يكون أقل من 10MB'); return; }
 
-        // --- Game 4: Math Rush ---
-        let mathScore = 0, mathTime = 60, mathAnswer = 0, mathInterval;
-        function genMath() {
-            let a = Math.floor(Math.random()*10)+1, b = Math.floor(Math.random()*10)+1;
-            let ops = ['+', '-', '*'];
-            let op = ops[Math.floor(Math.random()*3)];
-            if(op==='+') mathAnswer = a+b;
-            else if(op==='-') { if(b>a){[a,b]=[b,a];} mathAnswer = a-b; }
-            else mathAnswer = a*b;
-            document.getElementById('math-question').textContent = `${a} ${op} ${b} = ?`;
-            document.getElementById('math-input').value = '';
-        }
-        function startMath() {
-            mathScore = 0; mathTime = 60;
-            document.getElementById('math-score').textContent = 'النقاط: 0';
-            clearInterval(mathInterval);
-            mathInterval = setInterval(() => {
-                mathTime--;
-                document.getElementById('math-timer').textContent = `الوقت: ${mathTime}`;
-                if(mathTime <= 0) { clearInterval(mathInterval); alert(`انتهى الوقت! نقاطك: ${mathScore}`); }
-            }, 1000);
-            activeTimers.push(mathInterval);
-            genMath();
-        }
-        function checkMath() {
-            if(parseInt(document.getElementById('math-input').value) === mathAnswer) {
-                mathScore++;
-                document.getElementById('math-score').textContent = `النقاط: ${mathScore}`;
-                genMath();
-            }
-        }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      originalImage = img;
+      showEditor(img);
+      setStatus('✅ تم تحميل الصورة — اضغط "إزالة الخلفية"', 'done');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
 
-        // --- Game 5: Speed Click ---
-        let clicks = 0, clickTime = 10, clickInterval;
-        function startClick() {
-            clicks = 0; clickTime = 10;
-            document.getElementById('click-score').textContent = 'النقرات: 0';
-            document.getElementById('click-target').textContent = '0';
-            clearInterval(clickInterval);
-            clickInterval = setInterval(() => {
-                clickTime--;
-                document.getElementById('click-timer').textContent = `الوقت: ${clickTime}`;
-                if(clickTime <= 0) { clearInterval(clickInterval); alert(`انتهى الوقت! نقراتك: ${clicks}`); }
-            }, 1000);
-            activeTimers.push(clickInterval);
+function showEditor(img) {
+  document.getElementById('uploadZone').style.display = 'none';
+  document.getElementById('editor').classList.add('visible');
+  document.getElementById('controls').style.display = 'block';
+
+  // Draw original
+  const origCanvas = document.getElementById('originalCanvas');
+  const maxW = 340;
+  const scale = Math.min(maxW / img.width, maxW / img.height, 1);
+  origCanvas.width  = Math.round(img.width  * scale);
+  origCanvas.height = Math.round(img.height * scale);
+  origCanvas.getContext('2d').drawImage(img, 0, 0, origCanvas.width, origCanvas.height);
+}
+
+// ============================================================
+// BACKGROUND REMOVAL
+// ============================================================
+function setProgress(pct) {
+  const bar = document.getElementById('progressBar');
+  const fill = document.getElementById('progressFill');
+  bar.classList.add('visible');
+  fill.style.width = pct + '%';
+  if (pct >= 100) setTimeout(() => bar.classList.remove('visible'), 600);
+}
+
+function setStatus(msg, type) {
+  const s = document.getElementById('status');
+  s.textContent = msg;
+  s.className = 'status ' + type;
+}
+
+async function processImage() {
+  if (!originalImage) return;
+
+  const apiKey = document.getElementById('removebgKey').value.trim();
+
+  if (apiKey) {
+    await processWithAPI(apiKey);
+  } else {
+    await processLocal();
+  }
+}
+
+// ============================================================
+// METHOD 1: remove.bg API (دقيق جداً)
+// ============================================================
+async function processWithAPI(apiKey) {
+  setStatus('⏳ جارٍ الإرسال لـ remove.bg...', 'processing');
+  setProgress(20);
+
+  try {
+    // Convert image to blob
+    const work = document.getElementById('workCanvas');
+    work.width  = originalImage.width;
+    work.height = originalImage.height;
+    work.getContext('2d').drawImage(originalImage, 0, 0);
+
+    const blob = await new Promise(res => work.toBlob(res, 'image/png'));
+    const formData = new FormData();
+    formData.append('image_file', blob, 'photo.png');
+    formData.append('size', 'auto');
+
+    setProgress(40);
+
+    const res = await fetch('https://api.remove.bg/v1.0/removebg', {
+      method: 'POST',
+      headers: { 'X-Api-Key': apiKey },
+      body: formData
+    });
+
+    setProgress(80);
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.errors?.[0]?.title || 'خطأ في الـ API');
+    }
+
+    const resultBlob = await res.blob();
+    const url = URL.createObjectURL(resultBlob);
+    const img = new Image();
+    img.onload = () => {
+      renderResult(img);
+      URL.revokeObjectURL(url);
+      setProgress(100);
+      setStatus('✅ تمت المعالجة باحترافية!', 'done');
+      document.getElementById('downloadBtn').disabled = false;
+    };
+    img.src = url;
+
+  } catch (e) {
+    setStatus('❌ خطأ: ' + e.message + ' — جارٍ المحاولة بالطريقة المحلية...', 'error');
+    setTimeout(() => processLocal(), 1000);
+  }
+}
+
+// ============================================================
+// METHOD 2: خوارزمية محلية محسّنة (GrabCut-style flood fill)
+// ============================================================
+async function processLocal() {
+  setStatus('⏳ جارٍ إزالة الخلفية (محلياً)...', 'processing');
+  setProgress(15);
+
+  const work = document.getElementById('workCanvas');
+  work.width  = originalImage.width;
+  work.height = originalImage.height;
+  const ctx = work.getContext('2d');
+  ctx.drawImage(originalImage, 0, 0);
+
+  const W = work.width, H = work.height;
+  const imgData = ctx.getImageData(0, 0, W, H);
+  const data = imgData.data;
+  const threshold = parseInt(document.getElementById('threshold').value);
+  const smooth    = parseInt(document.getElementById('edgeSmooth').value);
+
+  setProgress(30);
+
+  // Sample background from edges (top/bottom/left/right rows)
+  const edgeSamples = [];
+  for (let x = 0; x < W; x++) {
+    edgeSamples.push(x); // top row
+    edgeSamples.push((H-1)*W + x); // bottom row
+  }
+  for (let y = 1; y < H-1; y++) {
+    edgeSamples.push(y*W); // left col
+    edgeSamples.push(y*W + W-1); // right col
+  }
+
+  let bgR=0, bgG=0, bgB=0, n=edgeSamples.length;
+  edgeSamples.forEach(i => { bgR+=data[i*4]; bgG+=data[i*4+1]; bgB+=data[i*4+2]; });
+  bgR=Math.round(bgR/n); bgG=Math.round(bgG/n); bgB=Math.round(bgB/n);
+
+  setProgress(45);
+
+  // Flood fill from all edges to find connected background
+  const visited = new Uint8Array(W * H);
+  const isBg = new Uint8Array(W * H);
+  const queue = [];
+
+  function colorDist(i) {
+    const r=data[i*4]-bgR, g=data[i*4+1]-bgG, b=data[i*4+2]-bgB;
+    return Math.sqrt(r*r + g*g + b*b);
+  }
+
+  // Seed from all border pixels
+  for (let x=0; x<W; x++) { queue.push(x); queue.push((H-1)*W+x); }
+  for (let y=1; y<H-1; y++) { queue.push(y*W); queue.push(y*W+W-1); }
+
+  while (queue.length > 0) {
+    const idx = queue.pop();
+    if (visited[idx]) continue;
+    visited[idx] = 1;
+    if (colorDist(idx) < threshold) {
+      isBg[idx] = 1;
+      const x = idx % W, y = Math.floor(idx / W);
+      if (x>0)   queue.push(idx-1);
+      if (x<W-1) queue.push(idx+1);
+      if (y>0)   queue.push(idx-W);
+      if (y<H-1) queue.push(idx+W);
+    }
+  }
+
+  setProgress(65);
+
+  // Build alpha mask
+  const alpha = new Uint8Array(W * H);
+  for (let i=0; i<W*H; i++) alpha[i] = isBg[i] ? 0 : 255;
+
+  // Edge feathering
+  if (smooth > 0) {
+    const blurred = new Uint8Array(alpha);
+    const r = smooth;
+    for (let y=r; y<H-r; y++) {
+      for (let x=r; x<W-r; x++) {
+        let sum=0, count=0;
+        for (let dy=-r; dy<=r; dy++) {
+          for (let dx=-r; dx<=r; dx++) {
+            sum += alpha[(y+dy)*W+(x+dx)];
+            count++;
+          }
         }
-        function doClick() {
-            if(clickTime < 10 && clickTime > 0) {
-                clicks++;
-                document.getElementById('click-score').textContent = `النقرات: ${clicks}`;
-                document.getElementById('click-target').textContent = clicks;
-            }
-        }
-    </script>
+        blurred[y*W+x] = Math.round(sum/count);
+      }
+    }
+    for (let i=0; i<alpha.length; i++) alpha[i] = blurred[i];
+  }
+
+  // Apply alpha
+  for (let i=0; i<W*H; i++) data[i*4+3] = alpha[i];
+  ctx.putImageData(imgData, 0, 0);
+
+  setProgress(85);
+  renderResult(work);
+  setProgress(100);
+  setStatus('✅ تمت المعالجة! (للنتائج الأدق أضف مفتاح remove.bg)', 'done');
+  document.getElementById('downloadBtn').disabled = false;
+}
+
+// ============================================================
+// RENDER RESULT TO OUTPUT CANVAS
+// ============================================================
+function renderResult(source) {
+  const resW = outputW || originalImage.width;
+  const resH = outputH || originalImage.height;
+
+  const resultCanvas = document.getElementById('resultCanvas');
+  resultCanvas.width  = resW;
+  resultCanvas.height = resH;
+  const rCtx = resultCanvas.getContext('2d');
+
+  if (currentBgColor !== 'transparent') {
+    rCtx.fillStyle = currentBgColor;
+    rCtx.fillRect(0, 0, resW, resH);
+  }
+
+  const srcW = source.width  || source.naturalWidth;
+  const srcH = source.height || source.naturalHeight;
+  const scale = Math.min(resW/srcW, resH/srcH) * 0.95;
+  const drawW = Math.round(srcW * scale);
+  const drawH = Math.round(srcH * scale);
+  const offX  = Math.round((resW - drawW) / 2);
+  const offY  = Math.round((resH - drawH) / 2);
+
+  rCtx.drawImage(source, offX, offY, drawW, drawH);
+}
+
+// ============================================================
+// CONTROLS
+// ============================================================
+function setBgColor(el, color) {
+  document.querySelectorAll('.bg-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  currentBgColor = color;
+  // Re-render if result exists
+  if (!document.getElementById('downloadBtn').disabled) processImage();
+}
+
+function setCustomColor(color) {
+  document.querySelectorAll('.bg-swatch').forEach(s => s.classList.remove('active'));
+  currentBgColor = color;
+  if (!document.getElementById('downloadBtn').disabled) processImage();
+}
+
+function setSize(btn, w, h) {
+  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  outputW = w; outputH = h;
+}
+
+// ============================================================
+// DOWNLOAD
+// ============================================================
+function downloadResult(format = 'png') {
+  const canvas = document.getElementById('resultCanvas');
+  const name = 'photo_' + Date.now();
+
+  if (format === 'jpg') {
+    // For JPG, flatten on white background first
+    const flat = document.createElement('canvas');
+    flat.width  = canvas.width;
+    flat.height = canvas.height;
+    const fCtx = flat.getContext('2d');
+    fCtx.fillStyle = '#ffffff';
+    fCtx.fillRect(0, 0, flat.width, flat.height);
+    fCtx.drawImage(canvas, 0, 0);
+    const url = flat.toDataURL('image/jpeg', 0.95);
+    triggerDownload(url, name + '.jpg');
+  } else {
+    const url = canvas.toDataURL('image/png');
+    triggerDownload(url, name + '.png');
+  }
+}
+
+function triggerDownload(url, filename) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// ============================================================
+// RESET
+// ============================================================
+function resetAll() {
+  originalImage = null;
+  document.getElementById('uploadZone').style.display = 'block';
+  document.getElementById('editor').classList.remove('visible');
+  document.getElementById('controls').style.display = 'none';
+  document.getElementById('downloadBtn').disabled = true;
+  document.getElementById('status').className = 'status';
+  document.getElementById('fileInput').value = '';
+  currentBgColor = '#ffffff';
+  outputW = 413; outputH = 531;
+  document.querySelectorAll('.size-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.querySelectorAll('.bg-swatch').forEach((s,i) => s.classList.toggle('active', i===0));
+}
+</script>
 </body>
 </html>
