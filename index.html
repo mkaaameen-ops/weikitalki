@@ -95,7 +95,7 @@
             margin-bottom: 24px;
         }
 
-        .upload-card:hover {
+        .upload-card:hover, .upload-card.dragover {
             border-color: var(--primary);
             background-color: #f5f9ff;
         }
@@ -159,12 +159,17 @@
         }
 
         .spinner {
+            display: none;
             width: 20px;
             height: 20px;
             border: 2.5px solid #cbd5e1;
             border-top: 2.5px solid var(--primary);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
+        }
+
+        .status-container.loading .spinner {
+            display: block;
         }
 
         @keyframes spin {
@@ -204,6 +209,12 @@
             align-items: center;
             position: relative;
             overflow: hidden;
+        }
+
+        .stage-view img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
 
         .view-fallback {
@@ -351,5 +362,191 @@
         </div>
     </div>
 
+    <!-- JavaScript Interactivity Layer -->
+    <script type="module">
+        import { removeBackground } from "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm";
+
+        // DOM Element Elements
+        const uploadCard = document.getElementById('uploadCard');
+        const imageInput = document.getElementById('imageInput');
+        const statusContainer = document.getElementById('statusContainer');
+        const statusMessage = document.getElementById('statusMessage');
+        const originalViewport = document.getElementById('originalViewport');
+        const processedViewport = document.getElementById('processedViewport');
+        const btnDownloadFull = document.getElementById('btnDownloadFull');
+        const btnDownloadPassport = document.getElementById('btnDownloadPassport');
+        const btnReset = document.getElementById('btnReset');
+
+        // State Trackers
+        let originalUrl = null;
+        let whiteBgBlob = null;
+        let passportBlob = null;
+
+        // Trigger file window on card click
+        uploadCard.addEventListener('click', () => imageInput.click());
+
+        // Manage Drag and Drop CSS visual status
+        uploadCard.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadCard.classList.add('dragover');
+        });
+        uploadCard.addEventListener('dragleave', () => uploadCard.classList.remove('dragover'));
+        uploadCard.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadCard.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Track standard file selector changes
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // Main lifecycle logic for processing selected image file
+        async function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file (PNG, JPG, or WebP).');
+                return;
+            }
+
+            // Cleanup any past executions 
+            resetWorkspace();
+
+            // Render local source preview image
+            originalUrl = URL.createObjectURL(file);
+            originalViewport.innerHTML = `<img src="${originalUrl}" alt="Original">`;
+
+            // Prepare UI state for loading pipeline
+            statusContainer.classList.add('loading');
+            statusMessage.textContent = "Initializing local AI engine... (First time takes ~15s to download assets)";
+
+            try {
+                // Call client-side WebAssembly background isolation task
+                const cleanPngBlob = await removeBackground(file, {
+                    publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/",
+                    progress: (key, current, total) => {
+                        const pct = Math.round((current / total) * 100);
+                        if (key === 'model') {
+                            statusMessage.textContent = `📦 Downloading AI model weights... ${pct}%`;
+                        } else if (key === 'inference') {
+                            statusMessage.textContent = `🧠 Analyzing profile contours... ${pct}%`;
+                        }
+                    }
+                });
+
+                statusMessage.textContent = "🎨 Compositing onto official white background...";
+
+                // Render into standard white background canvas formats
+                const fullCanvas = await compositeOnWhite(cleanPngBlob);
+                whiteBgBlob = await canvasToBlob(fullCanvas);
+
+                const passportCanvas = await createPassportCrop(fullCanvas);
+                passportBlob = await canvasToBlob(passportCanvas);
+
+                // Show processing output result onto layout
+                const processedUrl = URL.createObjectURL(whiteBgBlob);
+                processedViewport.innerHTML = `<img src="${processedUrl}" alt="Processed ID">`;
+
+                // Update system flags and enable triggers
+                statusContainer.classList.remove('loading');
+                statusMessage.textContent = "✅ Verification photo successfully optimized!";
+                btnDownloadFull.disabled = false;
+                btnDownloadPassport.disabled = false;
+                btnReset.disabled = false;
+
+            } catch (error) {
+                console.error(error);
+                statusContainer.classList.remove('loading');
+                statusMessage.textContent = "❌ Process failed. Try another picture or check device memory limitations.";
+                btnReset.disabled = false;
+            }
+        }
+
+        // Canvas compositor: overlays extracted portrait over white background layer
+        function compositeOnWhite(blob) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                const url = URL.createObjectURL(blob);
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                    URL.revokeObjectURL(url);
+                    resolve(canvas);
+                };
+                img.src = url;
+            });
+        }
+
+        // Canvas cropper: handles uniform 1:1 square center crop scaled down to 600x600px
+        function createPassportCrop(sourceCanvas) {
+            return new Promise((resolve) => {
+                const size = Math.min(sourceCanvas.width, sourceCanvas.height);
+                const sourceX = (sourceCanvas.width - size) / 2;
+                const sourceY = (sourceCanvas.height - size) / 2;
+
+                const targetCanvas = document.createElement('canvas');
+                targetCanvas.width = 600;
+                targetCanvas.height = 600;
+                const ctx = targetCanvas.getContext('2d');
+
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, 600, 600);
+                ctx.drawImage(sourceCanvas, sourceX, sourceY, size, size, 0, 0, 600, 600);
+                resolve(targetCanvas);
+            });
+        }
+
+        function canvasToBlob(canvas) {
+            return new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 1.0));
+        }
+
+        // Wire download functions
+        btnDownloadFull.addEventListener('click', () => {
+            if (whiteBgBlob) triggerDownload(whiteBgBlob, 'passport_full_res.png');
+        });
+
+        btnDownloadPassport.addEventListener('click', () => {
+            if (passportBlob) triggerDownload(passportBlob, 'passport_600x600_crop.png');
+        });
+
+        function triggerDownload(blob, filename) {
+            const tempUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = tempUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(tempUrl), 100);
+        }
+
+        // Clean workspaces tracking arrays
+        function resetWorkspace() {
+            if (originalUrl) URL.revokeObjectURL(originalUrl);
+            originalUrl = null;
+            whiteBgBlob = null;
+            passportBlob = null;
+        }
+
+        btnReset.addEventListener('click', () => {
+            resetWorkspace();
+            imageInput.value = '';
+            originalViewport.innerHTML = `<span class="view-fallback">No image source</span>`;
+            processedViewport.innerHTML = `<span class="view-fallback">Awaiting execution</span>`;
+            statusMessage.textContent = "Waiting for an image upload...";
+            btnDownloadFull.disabled = true;
+            btnDownloadPassport.disabled = true;
+            btnReset.disabled = true;
+        });
+    </script>
 </body>
 </html>
