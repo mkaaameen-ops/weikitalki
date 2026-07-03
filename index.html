@@ -144,6 +144,18 @@
         #status .retry-btn:active {
             background: #c0d0e0;
         }
+        #status .vpn-hint {
+            background: #ffeedb;
+            padding: 4px 12px;
+            border-radius: 30px;
+            color: #a86400;
+            font-size: 0.75rem;
+            display: none;
+            margin-left: auto;
+        }
+        #status.show-vpn .vpn-hint {
+            display: inline-block;
+        }
         #status.show-retry .retry-btn {
             display: inline-block;
         }
@@ -322,6 +334,7 @@
         <div id="status">
             <span class="spinner"></span>
             <span id="statusText">📱 Ready. Upload a portrait.</span>
+            <span class="vpn-hint">🌐 Try a VPN if loading fails</span>
             <button class="retry-btn" id="retryBtn">⟳ Retry Loading AI</button>
         </div>
 
@@ -355,14 +368,16 @@
 
     <script type="module">
         // ──────────────────────────────────────
-        // 1. DYNAMIC LOADER WITH FALLBACK (iOS fix)
+        // 1. DYNAMIC LOADER WITH EXTRA FALLBACKS
         // ──────────────────────────────────────
         let removeBackgroundFn = null;
 
         async function loadAIModule() {
             const cdnUrls = [
                 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.4/dist/background-removal.esm.js',
-                'https://unpkg.com/@imgly/background-removal@1.4.4/dist/background-removal.esm.js'
+                'https://unpkg.com/@imgly/background-removal@1.4.4/dist/background-removal.esm.js',
+                'https://esm.sh/@imgly/background-removal@1.4.4',
+                'https://cdn.skypack.dev/@imgly/background-removal@1.4.4'
             ];
 
             for (const url of cdnUrls) {
@@ -405,10 +420,11 @@
         // ──────────────────────────────────────
         // 3. HELPERS
         // ──────────────────────────────────────
-        function setStatus(msg, isLoading = false, showRetry = false) {
+        function setStatus(msg, isLoading = false, showRetry = false, showVpn = false) {
             statusText.textContent = msg;
             statusEl.classList.toggle('loading', isLoading);
             statusEl.classList.toggle('show-retry', showRetry);
+            statusEl.classList.toggle('show-vpn', showVpn);
         }
 
         function showImage(wrapEl, url) {
@@ -457,13 +473,13 @@
             if (!file || isProcessing) return;
             isProcessing = true;
             clearResults();
-            setStatus('⏳ Loading AI engine & removing background… (first time: 15–40s)', true, false);
+            setStatus('⏳ Loading AI engine & removing background… (first time: 15–40s)', true, false, false);
 
             try {
                 // Lazy load AI if not loaded yet
                 if (!removeBackgroundFn) {
                     removeBackgroundFn = await loadAIModule();
-                    setStatus('✅ AI loaded! Processing your photo…', true, false);
+                    setStatus('✅ AI loaded! Processing your photo…', true, false, false);
                 }
 
                 const transparentBlob = await removeBackgroundFn(file, {
@@ -471,9 +487,9 @@
                     output: { format: 'image/png', quality: 1 },
                     progress: (key, current, total) => {
                         const pct = Math.round((current / total) * 100);
-                        if (key === 'model') setStatus(`📦 Downloading model… ${pct}%`, true, false);
-                        else if (key === 'inference') setStatus(`🧠 Removing background… ${pct}%`, true, false);
-                        else setStatus(`⏳ Processing… ${pct}%`, true, false);
+                        if (key === 'model') setStatus(`📦 Downloading model… ${pct}%`, true, false, false);
+                        else if (key === 'inference') setStatus(`🧠 Removing background… ${pct}%`, true, false, false);
+                        else setStatus(`⏳ Processing… ${pct}%`, true, false, false);
                     }
                 });
 
@@ -490,10 +506,10 @@
                 downloadFullBtn.disabled = false;
                 downloadPassportBtn.disabled = false;
                 resetBtn.disabled = false;
-                setStatus('✅ Done! Pure white background (#FFFFFF). Download your photo.', false, false);
+                setStatus('✅ Done! Pure white background (#FFFFFF). Download your photo.', false, false, false);
             } catch (err) {
                 console.error('Processing error:', err);
-                setStatus(`❌ Error: ${err.message || 'Unknown error. Check console.'}`, false, true);
+                setStatus(`❌ Error: ${err.message || 'Unknown error. Check console.'}`, false, true, true);
                 clearResults();
             } finally {
                 isProcessing = false;
@@ -570,15 +586,15 @@
         // Retry AI loading
         retryBtn.addEventListener('click', async () => {
             removeBackgroundFn = null;
-            setStatus('🔄 Retrying AI load…', true, false);
+            setStatus('🔄 Retrying AI load…', true, false, false);
             try {
                 removeBackgroundFn = await loadAIModule();
-                setStatus('✅ AI re-loaded! Upload a photo.', false, false);
+                setStatus('✅ AI re-loaded! Upload a photo.', false, false, false);
                 if (originalFile) {
                     processImage(originalFile);
                 }
             } catch (err) {
-                setStatus(`❌ Retry failed: ${err.message}`, false, true);
+                setStatus(`❌ Retry failed: ${err.message}`, false, true, true);
             }
         });
 
@@ -596,7 +612,7 @@
             originalFile = null;
             clearResults();
             showImage(originalWrap, null);
-            setStatus('↺ Reset. Upload a new photo.', false, false);
+            setStatus('↺ Reset. Upload a new photo.', false, false, false);
             downloadFullBtn.disabled = true;
             downloadPassportBtn.disabled = true;
             resetBtn.disabled = true;
@@ -605,7 +621,7 @@
         // ──────────────────────────────────────
         // 7. INIT
         // ──────────────────────────────────────
-        setStatus('📱 Tap "Choose Photo" to start.', false, false);
+        setStatus('📱 Tap "Choose Photo" to start.', false, false, false);
         resetBtn.disabled = true;
 
         console.log('✅ iOS‑ready ID Photo Studio loaded.');
