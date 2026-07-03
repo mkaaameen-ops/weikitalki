@@ -402,17 +402,19 @@
     </div>
 
     <script type="module">
-        // ── Imports ──
+        // ── Imports and Dynamic Asset Configuration ──
         let removeBackground;
+        let activePublicPath = 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.4/dist/';
+
         try {
             const module = await import('@imgly/background-removal');
             removeBackground = module.removeBackground;
         } catch (err) {
-            // Fallback to unpkg if jsdelivr fails
             console.warn('jsdelivr failed, trying unpkg...', err);
             try {
                 const module = await import('https://unpkg.com/@imgly/background-removal@1.4.4/dist/background-removal.esm.js');
                 removeBackground = module.removeBackground;
+                activePublicPath = 'https://unpkg.com/@imgly/background-removal@1.4.4/dist/';
             } catch (err2) {
                 document.getElementById('statusText').textContent =
                     '❌ Failed to load AI model. Please check your internet connection or use a VPN.';
@@ -477,6 +479,7 @@
             try {
                 const transparentBlob = await removeBackground(file, {
                     model: 'default',
+                    publicPath: activePublicPath, // Fixed: Force library to fetch WASM/Model chunks from CDN origin
                     output: { format: 'image/png', quality: 1 },
                     progress: (key, current, total) => {
                         const pct = Math.round((current / total) * 100);
@@ -486,13 +489,15 @@
                     }
                 });
 
-                resultBlobUrl = URL.createObjectURL(transparentBlob);
-                showImage(resultWrap, resultBlobUrl);
-
-                // Composite on white
+                // Composite on pure white background
                 const fullCanvas = await compositeOnWhite(transparentBlob);
                 compositedBlob = await canvasToBlob(fullCanvas);
 
+                // Show the composited white background image in the user's preview box instead of transparent one
+                resultBlobUrl = URL.createObjectURL(compositedBlob);
+                showImage(resultWrap, resultBlobUrl);
+
+                // Build cropped variant
                 const passportCanvas = await createPassportCrop(fullCanvas);
                 compositedPassportBlob = await canvasToBlob(passportCanvas);
 
@@ -523,8 +528,10 @@
                     URL.revokeObjectURL(url);
                     resolve(c);
                 };
-                img.onerror = () => { URL.revokeObjectURL(url);
-                    reject(new Error('Failed to load transparent result')); };
+                img.onerror = () => { 
+                    URL.revokeObjectURL(url);
+                    reject(new Error('Failed to load transparent result')); 
+                };
                 img.src = url;
             });
         }
