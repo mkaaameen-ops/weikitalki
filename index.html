@@ -312,11 +312,11 @@
         <div class="subhead"><strong>100% local</strong> · AI removes BG · pure #FFFFFF · no retouching</div>
 
         <div class="upload-zone" id="dropZone">
-            <input type="file" id="fileInput" accept="image/*" capture="environment" />
+            <input type="file" id="fileInput" accept="image/*" />
             <div class="upload-icon">📸</div>
             <h3>Tap to select or take a photo</h3>
             <p>JPG, PNG, HEIC · Max 20 MB</p>
-            <button class="btn-browse" id="browseBtn">Choose from Library</button>
+            <button class="btn-browse" id="browseBtn">Choose Photo</button>
         </div>
 
         <div id="status">
@@ -605,7 +605,7 @@
         // ──────────────────────────────────────
         // 7. INIT
         // ──────────────────────────────────────
-        setStatus('📱 Tap "Choose from Library" to start.', false, false);
+        setStatus('📱 Tap "Choose Photo" to start.', false, false);
         resetBtn.disabled = true;
 
         console.log('✅ iOS‑ready ID Photo Studio loaded.');
