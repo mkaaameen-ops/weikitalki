@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Passport Photo Studio</title>
     <style>
-        /* Modern Reset & Base Variables */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -36,7 +35,6 @@
             padding: 24px;
         }
 
-        /* Premium App Card Container */
         .app-container {
             max-width: 1100px;
             width: 100%;
@@ -47,7 +45,6 @@
             border: 1px solid var(--border-color);
         }
 
-        /* Header Layout */
         header {
             margin-bottom: 32px;
         }
@@ -83,7 +80,6 @@
             margin-top: 4px;
         }
 
-        /* Interactive Drag & Drop Area */
         .upload-card {
             border: 2px dashed var(--upload-dash);
             border-radius: 16px;
@@ -140,7 +136,6 @@
             border-color: #94a3b8;
         }
 
-        /* Async Progress / Status Indicator */
         .status-container {
             background-color: #f8fafc;
             border: 1px solid var(--border-color);
@@ -156,6 +151,7 @@
             font-size: 0.95rem;
             font-weight: 500;
             color: #475569;
+            word-break: break-word;
         }
 
         .spinner {
@@ -177,7 +173,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Twin Studio Preview Columns */
         .preview-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -223,7 +218,6 @@
             font-weight: 500;
         }
 
-        /* Application Controls Area */
         .action-tray {
             display: flex;
             flex-wrap: wrap;
@@ -278,7 +272,6 @@
             color: var(--text-main);
         }
 
-        /* Clean Mobile Adaptations */
         @media (max-width: 768px) {
             .app-container {
                 padding: 24px;
@@ -303,18 +296,16 @@
 <body>
 
     <div class="app-container">
-        <!-- Application Branding Header -->
         <header>
             <div class="logo-area">
                 <span class="logo-icon">🪪</span>
                 <h1>AI Passport Photo Studio</h1>
             </div>
             <div class="privacy-badge">
-                🛡️ 100% Local AI – Your privacy is safe
+                🛡️ 100% Local AI – Secure Private Canvas
             </div>
         </header>
 
-        <!-- Dynamic Drop/Click Upload Target -->
         <div class="upload-card" id="uploadCard">
             <input type="file" id="imageInput" accept="image/png, image/jpeg, image/webp" />
             <div class="icon-bucket">📥</div>
@@ -323,15 +314,12 @@
             <button class="btn-browse" type="button">Browse Device</button>
         </div>
 
-        <!-- Real-time Processing Engine Updates -->
         <div class="status-container" id="statusContainer">
             <div class="spinner" id="statusSpinner"></div>
             <span class="status-text" id="statusMessage">Waiting for an image upload...</span>
         </div>
 
-        <!-- Image Workspace Viewport -->
         <div class="preview-grid">
-            <!-- Left Side: Unprocessed Reference -->
             <div class="preview-pane">
                 <span class="pane-title">📷 Original Portrait</span>
                 <div class="stage-view" id="originalViewport">
@@ -339,7 +327,6 @@
                 </div>
             </div>
 
-            <!-- Right Side: AI Output Workspace -->
             <div class="preview-pane">
                 <span class="pane-title">✨ Processed ID Photo</span>
                 <div class="stage-view" id="processedViewport">
@@ -348,7 +335,6 @@
             </div>
         </div>
 
-        <!-- Control Interactivity Subsystem -->
         <div class="action-tray">
             <button class="btn-action btn-fill-primary" id="btnDownloadFull" type="button" disabled>
                 ⬇️ Download Full Res White BG
@@ -362,11 +348,22 @@
         </div>
     </div>
 
-    <!-- JavaScript Interactivity Layer -->
     <script type="module">
-        import { removeBackground } from "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm";
+        let removeBackground;
 
-        // DOM Element Elements
+        // Dynamic fallback loader targeting structural assets across unpkg/jsdelivr networks
+        async function initEngine() {
+            try {
+                const module = await import("https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.4/dist/background-removal.esm.js");
+                removeBackground = module.removeBackground;
+                return "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.4/dist/";
+            } catch (e) {
+                const module = await import("https://unpkg.com/@imgly/background-removal@1.4.4/dist/background-removal.esm.js");
+                removeBackground = module.removeBackground;
+                return "https://unpkg.com/@imgly/background-removal@1.4.4/dist/";
+            }
+        }
+
         const uploadCard = document.getElementById('uploadCard');
         const imageInput = document.getElementById('imageInput');
         const statusContainer = document.getElementById('statusContainer');
@@ -377,15 +374,12 @@
         const btnDownloadPassport = document.getElementById('btnDownloadPassport');
         const btnReset = document.getElementById('btnReset');
 
-        // State Trackers
         let originalUrl = null;
         let whiteBgBlob = null;
         let passportBlob = null;
 
-        // Trigger file window on card click
         uploadCard.addEventListener('click', () => imageInput.click());
 
-        // Manage Drag and Drop CSS visual status
         uploadCard.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadCard.classList.add('dragover');
@@ -394,79 +388,69 @@
         uploadCard.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadCard.classList.remove('dragover');
-            if (e.dataTransfer.files.length > 0) {
-                handleFile(e.dataTransfer.files[0]);
-            }
+            if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
         });
 
-        // Track standard file selector changes
         imageInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFile(e.target.files[0]);
-            }
+            if (e.target.files.length > 0) handleFile(e.target.files[0]);
         });
 
-        // Main lifecycle logic for processing selected image file
         async function handleFile(file) {
             if (!file.type.startsWith('image/')) {
-                alert('Please upload an image file (PNG, JPG, or WebP).');
+                alert('Please upload an image file.');
                 return;
             }
 
-            // Cleanup any past executions 
             resetWorkspace();
-
-            // Render local source preview image
             originalUrl = URL.createObjectURL(file);
             originalViewport.innerHTML = `<img src="${originalUrl}" alt="Original">`;
 
-            // Prepare UI state for loading pipeline
             statusContainer.classList.add('loading');
-            statusMessage.textContent = "Initializing local AI engine... (First time takes ~15s to download assets)";
+            statusMessage.textContent = "Connecting to AI background framework...";
 
             try {
-                // Call client-side WebAssembly background isolation task
+                const basePath = await initEngine();
+                statusMessage.textContent = "🤖 Model downloading... (First run takes ~15 seconds to cache layers)";
+
                 const cleanPngBlob = await removeBackground(file, {
-                    publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/",
+                    publicPath: basePath,
+                    fetchArgs: { mode: 'cors' }, // Force clean cross-origin fetching rules
                     progress: (key, current, total) => {
                         const pct = Math.round((current / total) * 100);
                         if (key === 'model') {
-                            statusMessage.textContent = `📦 Downloading AI model weights... ${pct}%`;
+                            statusMessage.textContent = `📦 Fetching neural architecture weights... ${pct}%`;
                         } else if (key === 'inference') {
-                            statusMessage.textContent = `🧠 Analyzing profile contours... ${pct}%`;
+                            statusMessage.textContent = `🧠 Stripping portrait backgrounds... ${pct}%`;
                         }
                     }
                 });
 
-                statusMessage.textContent = "🎨 Compositing onto official white background...";
+                statusMessage.textContent = "🎨 Rendering crisp white photo passport dimensions...";
 
-                // Render into standard white background canvas formats
                 const fullCanvas = await compositeOnWhite(cleanPngBlob);
                 whiteBgBlob = await canvasToBlob(fullCanvas);
 
                 const passportCanvas = await createPassportCrop(fullCanvas);
                 passportBlob = await canvasToBlob(passportCanvas);
 
-                // Show processing output result onto layout
                 const processedUrl = URL.createObjectURL(whiteBgBlob);
                 processedViewport.innerHTML = `<img src="${processedUrl}" alt="Processed ID">`;
 
-                // Update system flags and enable triggers
                 statusContainer.classList.remove('loading');
-                statusMessage.textContent = "✅ Verification photo successfully optimized!";
+                statusMessage.textContent = "✅ Portrait parsed successfully! Ready for use.";
                 btnDownloadFull.disabled = false;
                 btnDownloadPassport.disabled = false;
                 btnReset.disabled = false;
 
             } catch (error) {
-                console.error(error);
+                console.error("AI Studio Debug Log:", error);
                 statusContainer.classList.remove('loading');
-                statusMessage.textContent = "❌ Process failed. Try another picture or check device memory limitations.";
+                // Informational printout identifying precise breakdown metrics (CORS vs Security Context)
+                statusMessage.innerHTML = `❌ <strong>Execution Blocked:</strong> ${error.message || 'Asset loading failure'}.<br><span style="font-size:0.8rem; color:var(--text-muted);">Tip: Double check you are running this page from an active local host web server environment (like VS Code Live Server) or secure HTTPS context, as local file systems block background WASM components.</span>`;
                 btnReset.disabled = false;
             }
         }
 
-        // Canvas compositor: overlays extracted portrait over white background layer
         function compositeOnWhite(blob) {
             return new Promise((resolve) => {
                 const img = new Image();
@@ -486,7 +470,6 @@
             });
         }
 
-        // Canvas cropper: handles uniform 1:1 square center crop scaled down to 600x600px
         function createPassportCrop(sourceCanvas) {
             return new Promise((resolve) => {
                 const size = Math.min(sourceCanvas.width, sourceCanvas.height);
@@ -509,7 +492,6 @@
             return new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 1.0));
         }
 
-        // Wire download functions
         btnDownloadFull.addEventListener('click', () => {
             if (whiteBgBlob) triggerDownload(whiteBgBlob, 'passport_full_res.png');
         });
@@ -529,7 +511,6 @@
             setTimeout(() => URL.revokeObjectURL(tempUrl), 100);
         }
 
-        // Clean workspaces tracking arrays
         function resetWorkspace() {
             if (originalUrl) URL.revokeObjectURL(originalUrl);
             originalUrl = null;
