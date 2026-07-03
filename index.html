@@ -2,525 +2,614 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Passport Photo Studio</title>
-    
-    <!-- Load the Global UMD bundle instead of an ES Module to bypass browser CORS script-loading blocks -->
-    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.4/dist/index.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>ID Photo – AI Remover</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
-
-        :root {
-            --bg-main: #f5f8fa;
-            --surface: #ffffff;
-            --text-main: #0f1a24;
-            --text-muted: #627d98;
-            --primary: #1975ff;
-            --primary-hover: #0056cc;
-            --success: #10b981;
-            --border-color: #e2e8f0;
-            --upload-dash: #cbd5e1;
-            --shadow: 0 20px 40px rgba(15, 26, 36, 0.05);
-        }
-
         body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f4f7fc;
+            font-family: -apple-system, 'Segoe UI', Roboto, system-ui, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 24px;
+            padding: 16px;
+            -webkit-text-size-adjust: 100%;
         }
-
-        .app-container {
-            max-width: 1100px;
+        .card {
+            max-width: 1000px;
             width: 100%;
-            background: var(--surface);
-            border-radius: 24px;
-            box-shadow: var(--shadow);
-            padding: 40px;
-            border: 1px solid var(--border-color);
+            background: #fff;
+            border-radius: 28px;
+            box-shadow: 0 20px 60px rgba(0, 20, 40, 0.12);
+            padding: 28px 24px 36px;
         }
-
-        header {
-            margin-bottom: 32px;
-        }
-
-        .logo-area {
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #0b2b4a;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
-
-        .logo-icon {
-            font-size: 1.8rem;
+        .subhead {
+            color: #3a5a7a;
+            font-size: 0.9rem;
+            border-left: 4px solid #1a7de0;
+            padding-left: 14px;
+            margin: 6px 0 20px 0;
+            line-height: 1.5;
         }
-
-        h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--text-main);
-            letter-spacing: -0.02em;
+        .subhead strong {
+            background: #eef4fa;
+            padding: 2px 10px;
+            border-radius: 20px;
         }
-
-        .privacy-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+        .upload-zone {
+            border: 2px dashed #b6cfe0;
+            border-radius: 20px;
+            padding: 30px 16px;
+            text-align: center;
+            background: #fafcfe;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 18px;
+            touch-action: manipulation;
+        }
+        .upload-zone:active {
+            background: #e3f0ff;
+        }
+        .upload-zone input[type="file"] {
+            display: none;
+        }
+        .upload-icon {
+            font-size: 2.8rem;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .upload-zone h3 {
+            font-weight: 500;
+            color: #1f3b57;
+            font-size: 1rem;
+        }
+        .upload-zone p {
+            color: #5b7b9b;
             font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--primary);
-            background: #edf5ff;
-            padding: 4px 12px;
-            border-radius: 100px;
             margin-top: 4px;
         }
-
-        .upload-card {
-            border: 2px dashed var(--upload-dash);
-            border-radius: 16px;
-            background-color: #fafbfc;
-            padding: 48px 24px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            margin-bottom: 24px;
-        }
-
-        .upload-card:hover, .upload-card.dragover {
-            border-color: var(--primary);
-            background-color: #f5f9ff;
-        }
-
-        .upload-card input[type="file"] {
-            display: none;
-        }
-
-        .icon-bucket {
-            font-size: 2.5rem;
-            margin-bottom: 12px;
-        }
-
-        .upload-card h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #334155;
-            margin-bottom: 6px;
-        }
-
-        .upload-card p {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-        }
-
         .btn-browse {
-            background-color: var(--surface);
-            color: #334155;
-            border: 1px solid #cbd5e1;
-            padding: 10px 24px;
-            border-radius: 8px;
+            margin-top: 14px;
+            background: #1a7de0;
+            color: white;
+            border: none;
+            padding: 12px 34px;
+            border-radius: 40px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 1rem;
             cursor: pointer;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            transition: all 0.15s ease;
+            box-shadow: 0 8px 18px -6px rgba(26, 125, 224, 0.35);
+            transition: 0.2s;
+            touch-action: manipulation;
+            width: auto;
+            display: inline-block;
         }
-
-        .btn-browse:hover {
-            background-color: #f8fafc;
-            border-color: #94a3b8;
+        .btn-browse:active {
+            background: #136ac4;
+            transform: scale(0.96);
         }
-
-        .status-container {
-            background-color: #f8fafc;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin-bottom: 32px;
+        #status {
+            margin: 12px 0 18px 0;
+            padding: 12px 16px;
+            background: #edf3f9;
+            border-radius: 40px;
+            color: #1f4a7a;
+            font-weight: 500;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 10px;
+            min-height: 50px;
+            flex-wrap: wrap;
         }
-
-        .status-text {
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: #475569;
-            word-break: break-word;
-        }
-
-        .spinner {
+        #status .spinner {
             display: none;
-            width: 20px;
-            height: 20px;
-            border: 2.5px solid #cbd5e1;
-            border-top: 2.5px solid var(--primary);
+            width: 22px;
+            height: 22px;
+            border: 3px solid #c0d4e8;
+            border-top: 3px solid #1a7de0;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
-
-        .status-container.loading .spinner {
-            display: block;
+        #status.loading .spinner {
+            display: inline-block;
         }
-
+        #status .retry-btn {
+            margin-left: auto;
+            background: #dce6f0;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-weight: 600;
+            color: #1f3b57;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: none;
+            touch-action: manipulation;
+        }
+        #status .retry-btn:active {
+            background: #c0d0e0;
+        }
+        #status.show-retry .retry-btn {
+            display: inline-block;
+        }
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
-
         .preview-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 32px;
-            margin-bottom: 36px;
+            gap: 18px;
+            margin: 14px 0 22px 0;
         }
-
-        .preview-pane {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .pane-title {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #475569;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .stage-view {
-            background: #f1f5f9;
+        .preview-box {
+            background: #f8fafc;
             border-radius: 16px;
-            border: 1px solid var(--border-color);
-            aspect-ratio: 4 / 5;
+            padding: 12px;
+            border: 1px solid #e6edf4;
+            text-align: center;
+        }
+        .preview-box h4 {
+            font-weight: 500;
+            color: #1f3b57;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        .preview-box .image-wrap {
+            background: #f0f4fa;
+            border-radius: 12px;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
-            overflow: hidden;
+            min-height: 180px;
+            max-height: 380px;
         }
-
-        .stage-view img {
+        .preview-box .image-wrap img {
             max-width: 100%;
-            max-height: 100%;
+            max-height: 380px;
+            display: block;
             object-fit: contain;
         }
-
-        .view-fallback {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            font-weight: 500;
+        .preview-box .image-wrap .placeholder {
+            color: #8aa3be;
+            font-size: 0.85rem;
+            padding: 20px;
         }
-
-        .action-tray {
+        .badge-white {
+            display: inline-block;
+            background: #ffffff;
+            border: 1px solid #d0dce8;
+            padding: 2px 14px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #1f4a7a;
+            margin-top: 8px;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-top: 6px;
+        }
+        .btn {
+            border: none;
+            background: #eef3f9;
+            color: #1f3b57;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 12px 22px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            flex: 1 1 auto;
+            text-align: center;
+            touch-action: manipulation;
+        }
+        .btn:disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .btn-primary {
+            background: #1a7de0;
+            color: #fff;
+            box-shadow: 0 8px 18px -6px rgba(26, 125, 224, 0.35);
+        }
+        .btn-primary:active {
+            background: #136ac4;
+            transform: scale(0.96);
+        }
+        .btn-success {
+            background: #1f9a6a;
+            color: #fff;
+            box-shadow: 0 8px 18px -6px rgba(31, 154, 106, 0.3);
+        }
+        .btn-success:active {
+            background: #178259;
+            transform: scale(0.96);
+        }
+        .btn-secondary {
+            background: #e5edf6;
+        }
+        .btn-secondary:active {
+            background: #d4e0ed;
+            transform: scale(0.96);
+        }
+        .footnote {
+            margin-top: 18px;
+            font-size: 0.8rem;
+            color: #5b7b9b;
+            border-top: 1px solid #e2eaf2;
+            padding-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footnote ul {
+            list-style: none;
             display: flex;
             flex-wrap: wrap;
             gap: 16px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 32px;
+            padding: 0;
         }
-
-        .btn-action {
-            padding: 14px 28px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+        .footnote ul li::before {
+            content: "✓";
+            color: #1a7de0;
+            font-weight: 700;
+            margin-right: 4px;
         }
-
-        .btn-action:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
-        .btn-fill-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-        .btn-fill-primary:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .btn-fill-success {
-            background-color: var(--success);
-            color: white;
-        }
-        .btn-fill-success:hover {
-            opacity: 0.9;
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid #cbd5e1;
-            color: #475569;
-            margin-left: auto;
-        }
-        .btn-outline:hover {
-            background-color: #f8fafc;
-            color: var(--text-main);
-        }
-
-        @media (max-width: 768px) {
-            .app-container {
-                padding: 24px;
+        @media (max-width: 600px) {
+            .card {
+                padding: 18px 14px 24px;
             }
             .preview-grid {
                 grid-template-columns: 1fr;
-                gap: 24px;
+                gap: 14px;
             }
-            .action-tray {
+            h1 {
+                font-size: 1.5rem;
+            }
+            .actions {
                 flex-direction: column;
             }
-            .btn-action {
+            .btn {
                 width: 100%;
                 justify-content: center;
             }
-            .btn-outline {
-                margin-left: 0;
+            .footnote {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .upload-zone {
+                padding: 20px 12px;
             }
         }
     </style>
 </head>
 <body>
+    <div class="card">
+        <h1>🪪 ID Studio</h1>
+        <div class="subhead"><strong>100% local</strong> · AI removes BG · pure #FFFFFF · no retouching</div>
 
-    <div class="app-container">
-        <header>
-            <div class="logo-area">
-                <span class="logo-icon">🪪</span>
-                <h1>AI Passport Photo Studio</h1>
-            </div>
-            <div class="privacy-badge">
-                🛡️ 100% Secure Local AI Studio
-            </div>
-        </header>
-
-        <div class="upload-card" id="uploadCard">
-            <input type="file" id="imageInput" accept="image/png, image/jpeg, image/webp" />
-            <div class="icon-bucket">📥</div>
-            <h3>Drag and drop your portrait here</h3>
-            <p>Supports PNG, JPG, or WebP up to 20MB</p>
-            <button class="btn-browse" type="button">Browse Device</button>
+        <div class="upload-zone" id="dropZone">
+            <input type="file" id="fileInput" accept="image/*" capture="environment" />
+            <div class="upload-icon">📸</div>
+            <h3>Tap to select or take a photo</h3>
+            <p>JPG, PNG, HEIC · Max 20 MB</p>
+            <button class="btn-browse" id="browseBtn">Choose from Library</button>
         </div>
 
-        <div class="status-container" id="statusContainer">
-            <div class="spinner" id="statusSpinner"></div>
-            <span class="status-text" id="statusMessage">Waiting for an image upload...</span>
+        <div id="status">
+            <span class="spinner"></span>
+            <span id="statusText">📱 Ready. Upload a portrait.</span>
+            <button class="retry-btn" id="retryBtn">⟳ Retry Loading AI</button>
         </div>
 
         <div class="preview-grid">
-            <div class="preview-pane">
-                <span class="pane-title">📷 Original Portrait</span>
-                <div class="stage-view" id="originalViewport">
-                    <span class="view-fallback">No image source</span>
-                </div>
+            <div class="preview-box">
+                <h4>📷 Original</h4>
+                <div class="image-wrap" id="originalWrap"><span class="placeholder">No image</span></div>
             </div>
-
-            <div class="preview-pane">
-                <span class="pane-title">✨ Processed ID Photo</span>
-                <div class="stage-view" id="processedViewport">
-                    <span class="view-fallback">Awaiting execution</span>
-                </div>
+            <div class="preview-box">
+                <h4>✨ Result · White BG</h4>
+                <div class="image-wrap" id="resultWrap"><span class="placeholder">Processed image</span></div>
+                <span class="badge-white">#FFFFFF · no shadows</span>
             </div>
         </div>
 
-        <div class="action-tray">
-            <button class="btn-action btn-fill-primary" id="btnDownloadFull" type="button" disabled>
-                ⬇️ Download Full Res White BG
-            </button>
-            <button class="btn-action btn-fill-success" id="btnDownloadPassport" type="button" disabled>
-                ✂️ Generate Passport Size (2x2" / 600px)
-            </button>
-            <button class="btn-action btn-outline" id="btnReset" type="button" disabled>
-                ↺ Start Over
-            </button>
+        <div class="actions">
+            <button class="btn btn-primary" id="downloadFullBtn" disabled>⬇ Full Resolution</button>
+            <button class="btn btn-success" id="downloadPassportBtn" disabled>⬇ Passport 600x600</button>
+            <button class="btn btn-secondary" id="resetBtn" disabled>↺ Start Over</button>
+        </div>
+
+        <div class="footnote">
+            <ul>
+                <li>Hair edges preserved</li>
+                <li>No skin smoothing</li>
+                <li>Official ID‑ready</li>
+            </ul>
+            <span>⚡ Model ~40 MB (cached)</span>
         </div>
     </div>
 
-    <script>
-        // Access function from global window context namespace established by script tag
-        const removeBackground = window['imglyBackgroundRemoval'] ? window['imglyBackgroundRemoval'].removeBackground : null;
+    <script type="module">
+        // ──────────────────────────────────────
+        // 1. DYNAMIC LOADER WITH FALLBACK (iOS fix)
+        // ──────────────────────────────────────
+        let removeBackgroundFn = null;
 
-        const uploadCard = document.getElementById('uploadCard');
-        const imageInput = document.getElementById('imageInput');
-        const statusContainer = document.getElementById('statusContainer');
-        const statusMessage = document.getElementById('statusMessage');
-        const originalViewport = document.getElementById('originalViewport');
-        const processedViewport = document.getElementById('processedViewport');
-        const btnDownloadFull = document.getElementById('btnDownloadFull');
-        const btnDownloadPassport = document.getElementById('btnDownloadPassport');
-        const btnReset = document.getElementById('btnReset');
+        async function loadAIModule() {
+            const cdnUrls = [
+                'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.4/dist/background-removal.esm.js',
+                'https://unpkg.com/@imgly/background-removal@1.4.4/dist/background-removal.esm.js'
+            ];
 
-        let originalUrl = null;
-        let whiteBgBlob = null;
-        let passportBlob = null;
+            for (const url of cdnUrls) {
+                try {
+                    console.log(`🔄 Trying to load AI from: ${url}`);
+                    const module = await import(url);
+                    if (module && typeof module.removeBackground === 'function') {
+                        console.log(`✅ AI loaded successfully from ${url}`);
+                        return module.removeBackground;
+                    }
+                } catch (err) {
+                    console.warn(`❌ Failed from ${url}:`, err.message);
+                }
+            }
+            throw new Error('All CDN sources failed. Please check your internet/VPN connection.');
+        }
 
-        uploadCard.addEventListener('click', () => imageInput.click());
+        // ──────────────────────────────────────
+        // 2. DOM REFS
+        // ──────────────────────────────────────
+        const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
+        const browseBtn = document.getElementById('browseBtn');
+        const statusEl = document.getElementById('status');
+        const statusText = document.getElementById('statusText');
+        const retryBtn = document.getElementById('retryBtn');
+        const originalWrap = document.getElementById('originalWrap');
+        const resultWrap = document.getElementById('resultWrap');
+        const downloadFullBtn = document.getElementById('downloadFullBtn');
+        const downloadPassportBtn = document.getElementById('downloadPassportBtn');
+        const resetBtn = document.getElementById('resetBtn');
 
-        uploadCard.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadCard.classList.add('dragover');
-        });
-        uploadCard.addEventListener('dragleave', () => uploadCard.classList.remove('dragover'));
-        uploadCard.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadCard.classList.remove('dragover');
-            if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
-        });
+        let originalFile = null;
+        let originalImageUrl = null;
+        let resultBlobUrl = null;
+        let compositedBlob = null;
+        let compositedPassportBlob = null;
+        let isProcessing = false;
 
-        imageInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) handleFile(e.target.files[0]);
-        });
+        // ──────────────────────────────────────
+        // 3. HELPERS
+        // ──────────────────────────────────────
+        function setStatus(msg, isLoading = false, showRetry = false) {
+            statusText.textContent = msg;
+            statusEl.classList.toggle('loading', isLoading);
+            statusEl.classList.toggle('show-retry', showRetry);
+        }
 
-        async function handleFile(file) {
-            if (!removeBackground) {
-                statusMessage.innerHTML = "❌ <strong>Error:</strong> The background removal library failed to initialize from CDN source. Check your web connection status.";
+        function showImage(wrapEl, url) {
+            wrapEl.innerHTML = '';
+            if (!url) {
+                wrapEl.innerHTML = `<span class="placeholder">No image</span>`;
                 return;
             }
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = 'preview';
+            img.loading = 'lazy';
+            wrapEl.appendChild(img);
+        }
 
-            if (!file.type.startsWith('image/')) {
-                alert('Please upload an image file.');
-                return;
-            }
+        function clearResults() {
+            if (resultBlobUrl) { URL.revokeObjectURL(resultBlobUrl);
+                resultBlobUrl = null; }
+            compositedBlob = null;
+            compositedPassportBlob = null;
+            showImage(resultWrap, null);
+            downloadFullBtn.disabled = true;
+            downloadPassportBtn.disabled = true;
+            resetBtn.disabled = true;
+        }
 
-            resetWorkspace();
-            originalUrl = URL.createObjectURL(file);
-            originalViewport.innerHTML = `<img src="${originalUrl}" alt="Original">`;
+        function canvasToBlob(canvas) {
+            return new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 1));
+        }
 
-            statusContainer.classList.add('loading');
-            statusMessage.textContent = "🤖 Loading local AI modules... (Takes ~10-15 seconds on initial run)";
+        function downloadBlob(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }
+
+        // ──────────────────────────────────────
+        // 4. CORE PROCESSING
+        // ──────────────────────────────────────
+        async function processImage(file) {
+            if (!file || isProcessing) return;
+            isProcessing = true;
+            clearResults();
+            setStatus('⏳ Loading AI engine & removing background… (first time: 15–40s)', true, false);
 
             try {
-                // Route engine to grab underlying wasm execution bundles from standard relative CDN location 
-                const cleanPngBlob = await removeBackground(file, {
-                    publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.4/dist/",
+                // Lazy load AI if not loaded yet
+                if (!removeBackgroundFn) {
+                    removeBackgroundFn = await loadAIModule();
+                    setStatus('✅ AI loaded! Processing your photo…', true, false);
+                }
+
+                const transparentBlob = await removeBackgroundFn(file, {
+                    model: 'default',
+                    output: { format: 'image/png', quality: 1 },
                     progress: (key, current, total) => {
                         const pct = Math.round((current / total) * 100);
-                        if (key === 'model') {
-                            statusMessage.textContent = `📦 Downloading neural weights... ${pct}%`;
-                        } else if (key === 'inference') {
-                            statusMessage.textContent = `🧠 Segregating target canvas elements... ${pct}%`;
-                        }
+                        if (key === 'model') setStatus(`📦 Downloading model… ${pct}%`, true, false);
+                        else if (key === 'inference') setStatus(`🧠 Removing background… ${pct}%`, true, false);
+                        else setStatus(`⏳ Processing… ${pct}%`, true, false);
                     }
                 });
 
-                statusMessage.textContent = "🎨 Finalizing white backing composite vectors...";
+                resultBlobUrl = URL.createObjectURL(transparentBlob);
+                showImage(resultWrap, resultBlobUrl);
 
-                const fullCanvas = await compositeOnWhite(cleanPngBlob);
-                whiteBgBlob = await canvasToBlob(fullCanvas);
+                // Composite onto pure white
+                const fullCanvas = await compositeOnWhite(transparentBlob);
+                compositedBlob = await canvasToBlob(fullCanvas);
 
                 const passportCanvas = await createPassportCrop(fullCanvas);
-                passportBlob = await canvasToBlob(passportCanvas);
+                compositedPassportBlob = await canvasToBlob(passportCanvas);
 
-                const processedUrl = URL.createObjectURL(whiteBgBlob);
-                processedViewport.innerHTML = `<img src="${processedUrl}" alt="Processed ID">`;
-
-                statusContainer.classList.remove('loading');
-                statusMessage.textContent = "✅ Image processing completed successfully!";
-                btnDownloadFull.disabled = false;
-                btnDownloadPassport.disabled = false;
-                btnReset.disabled = false;
-
-            } catch (error) {
-                console.error("Internal Log Error Details:", error);
-                statusContainer.classList.remove('loading');
-                statusMessage.innerHTML = `❌ <strong>Processing Engine Error:</strong> ${error.message || 'Model initiation failure'}.<br><span style="font-size:0.8rem; color:var(--text-muted);">Ensure your browser allows cross-origin requests for WebAssembly components or use VS Code Live Server / Localhost.</span>`;
-                btnReset.disabled = false;
+                downloadFullBtn.disabled = false;
+                downloadPassportBtn.disabled = false;
+                resetBtn.disabled = false;
+                setStatus('✅ Done! Pure white background (#FFFFFF). Download your photo.', false, false);
+            } catch (err) {
+                console.error('Processing error:', err);
+                setStatus(`❌ Error: ${err.message || 'Unknown error. Check console.'}`, false, true);
+                clearResults();
+            } finally {
+                isProcessing = false;
             }
         }
 
         function compositeOnWhite(blob) {
-            return new Promise((resolve) => {
-                const img = new Image();
+            return new Promise((resolve, reject) => {
                 const url = URL.createObjectURL(blob);
+                const img = new Image();
                 img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
+                    const c = document.createElement('canvas');
+                    c.width = img.width;
+                    c.height = img.height;
+                    const ctx = c.getContext('2d');
                     ctx.fillStyle = '#FFFFFF';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillRect(0, 0, c.width, c.height);
                     ctx.drawImage(img, 0, 0);
                     URL.revokeObjectURL(url);
-                    resolve(canvas);
+                    resolve(c);
                 };
+                img.onerror = () => { URL.revokeObjectURL(url);
+                    reject(new Error('Failed to load transparent result')); };
                 img.src = url;
             });
         }
 
         function createPassportCrop(sourceCanvas) {
             return new Promise((resolve) => {
-                const size = Math.min(sourceCanvas.width, sourceCanvas.height);
-                const sourceX = (sourceCanvas.width - size) / 2;
-                const sourceY = (sourceCanvas.height - size) / 2;
-
-                const targetCanvas = document.createElement('canvas');
-                targetCanvas.width = 600;
-                targetCanvas.height = 600;
-                const ctx = targetCanvas.getContext('2d');
-
+                const w = sourceCanvas.width,
+                    h = sourceCanvas.height;
+                const size = Math.min(w, h);
+                const sx = (w - size) / 2,
+                    sy = (h - size) / 2;
+                const c = document.createElement('canvas');
+                c.width = 600;
+                c.height = 600;
+                const ctx = c.getContext('2d');
                 ctx.fillStyle = '#FFFFFF';
                 ctx.fillRect(0, 0, 600, 600);
-                ctx.drawImage(sourceCanvas, sourceX, sourceY, size, size, 0, 0, 600, 600);
-                resolve(targetCanvas);
+                ctx.drawImage(sourceCanvas, sx, sy, size, size, 0, 0, 600, 600);
+                resolve(c);
             });
         }
 
-        function canvasToBlob(canvas) {
-            return new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 1.0));
+        // ──────────────────────────────────────
+        // 5. LOAD ORIGINAL
+        // ──────────────────────────────────────
+        function loadOriginal(file) {
+            if (!file) return;
+            originalFile = file;
+            if (originalImageUrl) URL.revokeObjectURL(originalImageUrl);
+            originalImageUrl = URL.createObjectURL(file);
+            showImage(originalWrap, originalImageUrl);
+            clearResults();
+            processImage(file);
         }
 
-        btnDownloadFull.addEventListener('click', () => {
-            if (whiteBgBlob) triggerDownload(whiteBgBlob, 'passport_full_res.png');
+        // ──────────────────────────────────────
+        // 6. EVENT BINDINGS (iOS friendly)
+        // ──────────────────────────────────────
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files?.length) loadOriginal(e.target.files[0]);
+            fileInput.value = '';
         });
 
-        btnDownloadPassport.addEventListener('click', () => {
-            if (passportBlob) triggerDownload(passportBlob, 'passport_600x600_crop.png');
+        browseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fileInput.click();
         });
 
-        function triggerDownload(blob, filename) {
-            const tempUrl = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = tempUrl;
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            setTimeout(() => URL.revokeObjectURL(tempUrl), 100);
-        }
+        dropZone.addEventListener('click', () => fileInput.click());
 
-        function resetWorkspace() {
-            if (originalUrl) URL.revokeObjectURL(originalUrl);
-            originalUrl = null;
-            whiteBgBlob = null;
-            passportBlob = null;
-        }
-
-        btnReset.addEventListener('click', () => {
-            resetWorkspace();
-            imageInput.value = '';
-            originalViewport.innerHTML = `<span class="view-fallback">No image source</span>`;
-            processedViewport.innerHTML = `<span class="view-fallback">Awaiting execution</span>`;
-            statusMessage.textContent = "Waiting for an image upload...";
-            btnDownloadFull.disabled = true;
-            btnDownloadPassport.disabled = true;
-            btnReset.disabled = true;
+        // Retry AI loading
+        retryBtn.addEventListener('click', async () => {
+            removeBackgroundFn = null;
+            setStatus('🔄 Retrying AI load…', true, false);
+            try {
+                removeBackgroundFn = await loadAIModule();
+                setStatus('✅ AI re-loaded! Upload a photo.', false, false);
+                if (originalFile) {
+                    processImage(originalFile);
+                }
+            } catch (err) {
+                setStatus(`❌ Retry failed: ${err.message}`, false, true);
+            }
         });
+
+        downloadFullBtn.addEventListener('click', () => {
+            if (compositedBlob) downloadBlob(compositedBlob, `id_photo_white.png`);
+        });
+
+        downloadPassportBtn.addEventListener('click', () => {
+            if (compositedPassportBlob) downloadBlob(compositedPassportBlob, `passport_600x600.png`);
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if (originalImageUrl) URL.revokeObjectURL(originalImageUrl);
+            originalImageUrl = null;
+            originalFile = null;
+            clearResults();
+            showImage(originalWrap, null);
+            setStatus('↺ Reset. Upload a new photo.', false, false);
+            downloadFullBtn.disabled = true;
+            downloadPassportBtn.disabled = true;
+            resetBtn.disabled = true;
+        });
+
+        // ──────────────────────────────────────
+        // 7. INIT
+        // ──────────────────────────────────────
+        setStatus('📱 Tap "Choose from Library" to start.', false, false);
+        resetBtn.disabled = true;
+
+        console.log('✅ iOS‑ready ID Photo Studio loaded.');
+        console.log('ℹ️  AI model will load on first photo upload.');
     </script>
 </body>
 </html>
