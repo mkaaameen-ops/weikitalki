@@ -1,316 +1,669 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>إزالة خلفية الصور الرسمية</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Official ID Photo Tool</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
+    <!-- Import Map for @imgly/background-removal (runs 100% in-browser) -->
+    <script type="importmap">
+        {
+            "imports": {
+                "@imgly/background-removal": "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.4/dist/background-removal.esm.js"
+            }
+        }
+    </script>
 
-  <style>
-    :root {
-      --bg: #f3f6fb;
-      --card: #ffffff;
-      --text: #111827;
-      --muted: #6b7280;
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --border: #e5e7eb;
-      --success: #16a34a;
-    }
+    <style>
+        /* ── Reset & Global ── */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    * { box-sizing: border-box; }
+        body {
+            background: #f4f7fc;
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
-      color: var(--text);
-      padding: 24px;
-    }
+        .card {
+            max-width: 1200px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 20px 60px rgba(0, 20, 40, 0.12);
+            padding: 36px 40px 48px;
+            transition: all 0.2s;
+        }
 
-    .wrap {
-      max-width: 1100px;
-      margin: auto;
-    }
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #0b2b4a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
 
-    .hero {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-      margin-bottom: 18px;
-    }
+        .subhead {
+            color: #3a5a7a;
+            font-size: 1rem;
+            border-left: 4px solid #1a7de0;
+            padding-left: 16px;
+            margin: 6px 0 24px 0;
+            line-height: 1.5;
+        }
 
-    h1 {
-      margin: 0 0 10px;
-      font-size: 30px;
-    }
+        .subhead strong {
+            color: #0b2b4a;
+            background: #eef4fa;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
 
-    p {
-      margin: 8px 0;
-      color: var(--muted);
-      line-height: 1.8;
-    }
+        /* ── Upload Zone ── */
+        .upload-zone {
+            border: 2px dashed #b6cfe0;
+            border-radius: 20px;
+            padding: 48px 20px;
+            text-align: center;
+            background: #fafcfe;
+            cursor: pointer;
+            transition: border 0.2s, background 0.2s;
+            margin-bottom: 28px;
+        }
 
-    .panel {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-    }
+        .upload-zone:hover {
+            border-color: #1a7de0;
+            background: #f2f8ff;
+        }
 
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 16px;
-    }
+        .upload-zone.dragover {
+            border-color: #1a7de0;
+            background: #e3f0ff;
+        }
 
-    input[type="file"] {
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: #fafafa;
-      min-width: 260px;
-    }
+        .upload-zone input[type="file"] {
+            display: none;
+        }
 
-    button, .download {
-      appearance: none;
-      border: 0;
-      background: var(--primary);
-      color: white;
-      padding: 12px 18px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 15px;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: 0.2s ease;
-    }
+        .upload-icon {
+            font-size: 3.6rem;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
 
-    button:hover, .download:hover {
-      background: var(--primary-dark);
-      transform: translateY(-1px);
-    }
+        .upload-zone h3 {
+            font-weight: 500;
+            color: #1f3b57;
+            font-size: 1.2rem;
+        }
 
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
+        .upload-zone p {
+            color: #5b7b9b;
+            font-size: 0.95rem;
+            margin-top: 6px;
+        }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 18px;
-      margin-top: 16px;
-    }
+        /* ── Status / Progress ── */
+        #status {
+            margin: 12px 0 20px 0;
+            padding: 12px 18px;
+            background: #edf3f9;
+            border-radius: 40px;
+            color: #1f4a7a;
+            font-weight: 500;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 52px;
+        }
 
-    .box {
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 14px;
-      background: #fcfcfd;
-    }
+        #status .spinner {
+            display: none;
+            width: 22px;
+            height: 22px;
+            border: 3px solid #c0d4e8;
+            border-top: 3px solid #1a7de0;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
 
-    .box h3 {
-      margin: 0 0 12px;
-      font-size: 18px;
-    }
+        #status.loading .spinner {
+            display: inline-block;
+        }
 
-    .canvas-wrap {
-      width: 100%;
-      aspect-ratio: 4 / 5;
-      border-radius: 14px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      background: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
-    canvas, img {
-      max-width: 100%;
-      max-height: 100%;
-      display: block;
-    }
+        /* ── Preview Grid ── */
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin: 18px 0 28px 0;
+        }
 
-    .status {
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: 14px;
-    }
+        .preview-box {
+            background: #f8fafc;
+            border-radius: 18px;
+            padding: 16px;
+            border: 1px solid #e6edf4;
+            text-align: center;
+        }
 
-    .status strong {
-      color: var(--success);
-    }
+        .preview-box h4 {
+            font-weight: 500;
+            color: #1f3b57;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            letter-spacing: 0.3px;
+        }
 
-    .note {
-      margin-top: 12px;
-      font-size: 14px;
-      color: var(--muted);
-      line-height: 1.8;
-    }
-  </style>
+        .preview-box .image-wrap {
+            background: #f0f4fa;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 280px;
+            max-height: 460px;
+        }
+
+        .preview-box .image-wrap img {
+            max-width: 100%;
+            max-height: 460px;
+            display: block;
+            object-fit: contain;
+        }
+
+        .preview-box .image-wrap .placeholder {
+            color: #8aa3be;
+            font-size: 0.95rem;
+            padding: 30px;
+        }
+
+        .badge-white {
+            display: inline-block;
+            background: #ffffff;
+            border: 1px solid #d0dce8;
+            padding: 2px 14px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #1f4a7a;
+            margin-top: 10px;
+        }
+
+        /* ── Actions ── */
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .btn {
+            border: none;
+            background: #eef3f9;
+            color: #1f3b57;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 12px 28px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s, opacity 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            filter: grayscale(0.4);
+        }
+
+        .btn-primary {
+            background: #1a7de0;
+            color: #fff;
+            box-shadow: 0 8px 18px -6px rgba(26, 125, 224, 0.35);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #136ac4;
+            box-shadow: 0 10px 22px -8px rgba(26, 125, 224, 0.45);
+        }
+
+        .btn-secondary {
+            background: #e5edf6;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #d4e0ed;
+        }
+
+        .btn-success {
+            background: #1f9a6a;
+            color: #fff;
+            box-shadow: 0 8px 18px -6px rgba(31, 154, 106, 0.3);
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #178259;
+            box-shadow: 0 10px 22px -8px rgba(31, 154, 106, 0.4);
+        }
+
+        .footnote {
+            margin-top: 18px;
+            font-size: 0.85rem;
+            color: #5b7b9b;
+            border-top: 1px solid #e2eaf2;
+            padding-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footnote ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 0;
+        }
+
+        .footnote ul li {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .footnote ul li::before {
+            content: "✓";
+            color: #1a7de0;
+            font-weight: 700;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 700px) {
+            .card {
+                padding: 20px 16px 30px;
+            }
+
+            .preview-grid {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            h1 {
+                font-size: 1.6rem;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+
+            .footnote {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .footnote ul {
+                gap: 12px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="hero">
-      <h1>إزالة خلفية الصور الرسمية</h1>
-      <p>
-        ارفع صورة شخصية، وسيتم إزالة الخلفية داخل المتصفح واستبدالها بخلفية بيضاء مناسبة للصور الرسمية.
-      </p>
-      <p>
-        يعمل بدون سيرفر، ومناسب كبداية مجانية لصور الجواز، الرخصة، والجهات الرسمية.
-      </p>
-    </div>
-
-    <div class="panel">
-      <div class="controls">
-        <input type="file" id="fileInput" accept="image/*" />
-        <button id="processBtn" disabled>إزالة الخلفية</button>
-        <a id="downloadBtn" class="download" style="display:none;">تحميل PNG</a>
-      </div>
-
-      <div class="status" id="status">الحالة: بانتظار اختيار صورة.</div>
-
-      <div class="grid">
-        <div class="box">
-          <h3>الصورة الأصلية</h3>
-          <div class="canvas-wrap">
-            <img id="originalPreview" alt="الصورة الأصلية" />
-          </div>
+    <div class="card">
+        <h1>
+            <span>🪪</span> ID Photo Studio
+        </h1>
+        <div class="subhead">
+            <strong>100% local</strong> · AI background removal · pure #FFFFFF · no beautification
         </div>
 
-        <div class="box">
-          <h3>النتيجة النهائية</h3>
-          <div class="canvas-wrap">
-            <canvas id="outputCanvas"></canvas>
-          </div>
-          <div class="note">
-            يتم وضع الشخص فوق خلفية بيضاء نقية لتناسب المظهر الرسمي.
-          </div>
+        <!-- Upload Zone -->
+        <div class="upload-zone" id="dropZone">
+            <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp,image/heic,image/heif" />
+            <div class="upload-icon">📤</div>
+            <h3>Drop your portrait here, or click to browse</h3>
+            <p>Supports JPG, PNG, WebP, HEIC &bull; Max 20 MB</p>
         </div>
-      </div>
+
+        <!-- Status -->
+        <div id="status">
+            <span class="spinner"></span>
+            <span id="statusText">Awaiting your photo</span>
+        </div>
+
+        <!-- Preview Grid -->
+        <div class="preview-grid">
+            <div class="preview-box">
+                <h4>📷 Original</h4>
+                <div class="image-wrap" id="originalWrap">
+                    <span class="placeholder">No image loaded</span>
+                </div>
+            </div>
+            <div class="preview-box">
+                <h4>✨ Result &bull; White Background</h4>
+                <div class="image-wrap" id="resultWrap">
+                    <span class="placeholder">Processed image will appear here</span>
+                </div>
+                <span class="badge-white">#FFFFFF · no shadows · no gradients</span>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <button class="btn btn-primary" id="downloadFullBtn" disabled>
+                ⬇ Download Full Resolution (White BG)
+            </button>
+            <button class="btn btn-success" id="downloadPassportBtn" disabled>
+                ⬇ Download 2×2″ Passport Crop (600×600 px)
+            </button>
+            <button class="btn btn-secondary" id="resetBtn" disabled>
+                ↺ Start Over
+            </button>
+        </div>
+
+        <div class="footnote">
+            <ul>
+                <li>Facial features &amp; hair edges preserved</li>
+                <li>No skin smoothing / retouching</li>
+                <li>Official ID–ready</li>
+            </ul>
+            <span>⚡ Model downloads ~40 MB once (cached by browser)</span>
+        </div>
     </div>
-  </div>
 
-  <script>
-    const fileInput = document.getElementById('fileInput');
-    const processBtn = document.getElementById('processBtn');
-    const downloadBtn = document.getElementById('downloadBtn');
-    const statusEl = document.getElementById('status');
-    const originalPreview = document.getElementById('originalPreview');
-    const outputCanvas = document.getElementById('outputCanvas');
-    const ctx = outputCanvas.getContext('2d');
+    <!-- ─── MAIN APPLICATION ─── -->
+    <script type="module">
+        // ── Imports ──
+        import { removeBackground } from '@imgly/background-removal';
 
-    let image = new Image();
-    let segmentationModel = null;
-    let currentFileUrl = null;
+        // ── DOM refs ──
+        const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
+        const statusEl = document.getElementById('status');
+        const statusText = document.getElementById('statusText');
+        const originalWrap = document.getElementById('originalWrap');
+        const resultWrap = document.getElementById('resultWrap');
+        const downloadFullBtn = document.getElementById('downloadFullBtn');
+        const downloadPassportBtn = document.getElementById('downloadPassportBtn');
+        const resetBtn = document.getElementById('resetBtn');
 
-    async function loadModel() {
-      if (segmentationModel) return segmentationModel;
+        // ── State ──
+        let originalFile = null;
+        let originalImageUrl = null;
+        let resultBlobUrl = null; // transparent PNG from AI
+        let compositedBlob = null; // final PNG with #FFFFFF background
+        let compositedPassportBlob = null; // 600x600 centered crop
 
-      segmentationModel = new SelfieSegmentation({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
-      });
+        // ── Helpers ──
+        function setStatus(msg, isLoading = false) {
+            statusText.textContent = msg;
+            if (isLoading) {
+                statusEl.classList.add('loading');
+            } else {
+                statusEl.classList.remove('loading');
+            }
+        }
 
-      segmentationModel.setOptions({
-        modelSelection: 1
-      });
+        function showImage(wrapEl, url, alt = 'preview') {
+            wrapEl.innerHTML = '';
+            if (!url) {
+                wrapEl.innerHTML = `<span class="placeholder">No image</span>`;
+                return;
+            }
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = alt;
+            wrapEl.appendChild(img);
+        }
 
-      return segmentationModel;
-    }
+        function loadOriginal(file) {
+            originalFile = file;
+            if (originalImageUrl) {
+                URL.revokeObjectURL(originalImageUrl);
+            }
+            originalImageUrl = URL.createObjectURL(file);
+            showImage(originalWrap, originalImageUrl, 'original portrait');
+            // Clear previous results
+            clearResults();
+            setStatus('Original loaded. Click "Process" or wait for auto‑process? (processing starts automatically)');
+            // Auto-start processing
+            processImage(file);
+        }
 
-    function drawFit(img, canvasW, canvasH) {
-      const imgRatio = img.width / img.height;
-      const canvasRatio = canvasW / canvasH;
+        function clearResults() {
+            if (resultBlobUrl) {
+                URL.revokeObjectURL(resultBlobUrl);
+                resultBlobUrl = null;
+            }
+            compositedBlob = null;
+            compositedPassportBlob = null;
+            showImage(resultWrap, null);
+            downloadFullBtn.disabled = true;
+            downloadPassportBtn.disabled = true;
+            resetBtn.disabled = true;
+        }
 
-      let drawW, drawH, offsetX, offsetY;
+        // ── Core processing ──
+        async function processImage(file) {
+            if (!file) return;
 
-      if (imgRatio > canvasRatio) {
-        drawW = canvasW;
-        drawH = canvasW / imgRatio;
-        offsetX = 0;
-        offsetY = (canvasH - drawH) / 2;
-      } else {
-        drawH = canvasH;
-        drawW = canvasH * imgRatio;
-        offsetX = (canvasW - drawW) / 2;
-        offsetY = 0;
-      }
+            // Reset UI
+            clearResults();
+            downloadFullBtn.disabled = true;
+            downloadPassportBtn.disabled = true;
+            resetBtn.disabled = true;
+            setStatus('🔄 Loading AI model & removing background… (first time may take 15–30s)', true);
 
-      return { drawW, drawH, offsetX, offsetY };
-    }
+            try {
+                // 1. Run background removal (returns transparent PNG blob)
+                const transparentBlob = await removeBackground(file, {
+                    model: 'default',
+                    output: {
+                        format: 'image/png',
+                        quality: 1,
+                    },
+                    progress: (key, current, total) => {
+                        const pct = Math.round((current / total) * 100);
+                        if (key === 'model') {
+                            setStatus(`📦 Downloading AI model… ${pct}%`, true);
+                        } else if (key === 'inference') {
+                            setStatus(`🧠 Removing background… ${pct}%`, true);
+                        } else {
+                            setStatus(`⏳ Processing… ${pct}%`, true);
+                        }
+                    },
+                });
 
-    async function removeBackground() {
-      if (!image.src) return;
+                // Store the transparent blob URL for preview
+                if (resultBlobUrl) URL.revokeObjectURL(resultBlobUrl);
+                resultBlobUrl = URL.createObjectURL(transparentBlob);
+                showImage(resultWrap, resultBlobUrl, 'transparent result');
 
-      statusEl.textContent = 'الحالة: جاري تحليل الصورة...';
-      processBtn.disabled = true;
-      downloadBtn.style.display = 'none';
+                // 2. Composite onto solid #FFFFFF background at full resolution
+                const fullCanvas = await compositeOnWhite(transparentBlob);
+                compositedBlob = await canvasToBlob(fullCanvas, 'image/png');
 
-      const model = await loadModel();
+                // 3. Generate passport crop (centered square, 600×600)
+                const passportCanvas = await createPassportCrop(fullCanvas);
+                compositedPassportBlob = await canvasToBlob(passportCanvas, 'image/png');
 
-      model.onResults((results) => {
-        const w = results.image.width;
-        const h = results.image.height;
+                // 4. Enable downloads
+                downloadFullBtn.disabled = false;
+                downloadPassportBtn.disabled = false;
+                resetBtn.disabled = false;
+                setStatus('✅ Done! Background is pure white (#FFFFFF). Download your photo.', false);
+            } catch (err) {
+                console.error(err);
+                setStatus(`❌ Error: ${err.message || 'Unknown error. Check console.'}`, false);
+                clearResults();
+                downloadFullBtn.disabled = true;
+                downloadPassportBtn.disabled = true;
+                resetBtn.disabled = false;
+            }
+        }
 
-        outputCanvas.width = w;
-        outputCanvas.height = h;
+        // ── Composite: transparent PNG over solid white ──
+        function compositeOnWhite(transparentBlob) {
+            return new Promise((resolve, reject) => {
+                const url = URL.createObjectURL(transparentBlob);
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    // Solid white background
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    // Draw transparent foreground
+                    ctx.drawImage(img, 0, 0);
+                    URL.revokeObjectURL(url);
+                    resolve(canvas);
+                };
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    reject(new Error('Failed to load transparent result for compositing.'));
+                };
+                img.src = url;
+            });
+        }
 
-        ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, w, h);
+        // ── Centered square crop → 600×600 (2×2″ at 300 DPI) ──
+        function createPassportCrop(sourceCanvas) {
+            return new Promise((resolve) => {
+                const w = sourceCanvas.width;
+                const h = sourceCanvas.height;
+                const size = Math.min(w, h); // square side
+                const sx = (w - size) / 2;
+                const sy = (h - size) / 2;
 
-        ctx.drawImage(results.segmentationMask, 0, 0, w, h);
+                const outCanvas = document.createElement('canvas');
+                outCanvas.width = 600;
+                outCanvas.height = 600;
+                const ctx = outCanvas.getContext('2d');
+                // White background (safety)
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, 600, 600);
+                // Draw centered square scaled to 600x600
+                ctx.drawImage(sourceCanvas, sx, sy, size, size, 0, 0, 600, 600);
+                resolve(outCanvas);
+            });
+        }
 
-        ctx.globalCompositeOperation = 'source-in';
-        const fit = drawFit(results.image, w, h);
-        ctx.drawImage(results.image, fit.offsetX, fit.offsetY, fit.drawW, fit.drawH);
+        function canvasToBlob(canvas, mimeType = 'image/png') {
+            return new Promise((resolve) => {
+                canvas.toBlob((blob) => resolve(blob), mimeType, 1);
+            });
+        }
 
-        ctx.globalCompositeOperation = 'destination-over';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, w, h);
+        // ── Download helpers ──
+        function downloadBlob(blob, filename) {
+            if (!blob) return;
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }
 
-        ctx.globalCompositeOperation = 'source-over';
+        // ── Event listeners ──
 
-        downloadBtn.href = outputCanvas.toDataURL('image/png');
-        downloadBtn.download = 'official-photo.png';
-        downloadBtn.style.display = 'inline-flex';
+        // File input
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                loadOriginal(e.target.files[0]);
+            }
+            fileInput.value = ''; // allow re-upload same file
+        });
 
-        statusEl.innerHTML = 'الحالة: <strong>تمت إزالة الخلفية بنجاح</strong>.';
-        processBtn.disabled = false;
-      });
+        // Drag & drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                loadOriginal(files[0]);
+            }
+        });
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
 
-      await model.send({ image });
-    }
+        // Download buttons
+        downloadFullBtn.addEventListener('click', () => {
+            if (compositedBlob) {
+                const ext = originalFile ? originalFile.name.split('.').pop() : 'png';
+                downloadBlob(compositedBlob, `id_photo_white_bg.${ext === 'png' ? 'png' : 'png'}`);
+            }
+        });
 
-    fileInput.addEventListener('change', () => {
-      const file = fileInput.files[0];
-      if (!file) return;
+        downloadPassportBtn.addEventListener('click', () => {
+            if (compositedPassportBlob) {
+                downloadBlob(compositedPassportBlob, `passport_2x2_600px.png`);
+            }
+        });
 
-      if (currentFileUrl) URL.revokeObjectURL(currentFileUrl);
-      currentFileUrl = URL.createObjectURL(file);
+        // Reset
+        resetBtn.addEventListener('click', () => {
+            if (originalImageUrl) {
+                URL.revokeObjectURL(originalImageUrl);
+                originalImageUrl = null;
+            }
+            clearResults();
+            originalFile = null;
+            showImage(originalWrap, null);
+            setStatus('Reset. Upload a new photo.');
+            downloadFullBtn.disabled = true;
+            downloadPassportBtn.disabled = true;
+            resetBtn.disabled = true;
+        });
 
-      image = new Image();
-      image.onload = () => {
-        originalPreview.src = currentFileUrl;
-        processBtn.disabled = false;
-        statusEl.textContent = 'الحالة: الصورة جاهزة للمعالجة.';
-      };
-      image.src = currentFileUrl;
-    });
+        // ── Init ──
+        setStatus('📸 Upload a portrait to start');
+        resetBtn.disabled = true;
 
-    processBtn.addEventListener('click', removeBackground);
-  </script>
+        console.log('✅ ID Photo Studio ready.');
+        console.log('ℹ️  Model will download from CDN on first use (~40 MB).');
+    </script>
 </body>
 </html>
