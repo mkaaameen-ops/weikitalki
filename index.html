@@ -5,15 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>محول الكاميرات الاحترافي | AVI &amp; MP3</title>
-    <!-- مكتبة ترميز MP3 القياسية (مع حماية كاملة في حال العمل بدون إنترنت على a-Shell) -->
+    <title>محول الكاميرات الاحترافي السريع | AVI &amp; MP3</title>
+    <!-- مكتبة ترميز MP3 القياسية (تعمل بأمان مع حماية كاملة في حال العمل المحلي بدون إنترنت) -->
     <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js" defer></script>
     <style>
         :root {
-            --bg-main: #090d16;
+            --bg-main: #080c14;
             --bg-card: #111827;
-            --bg-card-alt: #1e293b;
-            --border-color: rgba(148, 163, 184, 0.16);
+            --bg-card-inner: #0f172a;
+            --border-subtle: rgba(148, 163, 184, 0.16);
+            --border-strong: rgba(99, 102, 241, 0.42);
             --primary: #6366f1;
             --primary-hover: #4f46e5;
             --emerald: #10b981;
@@ -47,48 +48,50 @@
 
         body {
             padding-top: calc(14px + var(--safe-top));
-            padding-bottom: calc(28px + var(--safe-bottom));
+            padding-bottom: calc(32px + var(--safe-bottom));
             padding-left: calc(14px + var(--safe-left));
             padding-right: calc(14px + var(--safe-right));
-            background-image: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15), transparent 55%);
+            background-image:
+                radial-gradient(circle at 80% 0%, rgba(99, 102, 241, 0.16), transparent 50%),
+                radial-gradient(circle at 15% 100%, rgba(16, 185, 129, 0.08), transparent 45%);
         }
 
         .hidden {
             display: none !important;
         }
 
-        .container {
-            max-width: 820px;
+        .app-shell {
+            max-width: 840px;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
         }
 
         /* الترويسة */
         .header-card {
             background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 18px;
-            padding: 18px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 16px 18px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.38);
         }
 
-        .header-top {
+        .brand-row {
             display: flex;
-            flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
+            flex-wrap: wrap;
         }
 
-        .brand {
+        .brand-left {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .brand-icon {
+        .brand-logo {
             width: 46px;
             height: 46px;
             border-radius: 14px;
@@ -97,88 +100,88 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.38);
         }
 
         .brand-title {
             margin: 0;
-            font-size: 1.15rem;
+            font-size: 1.12rem;
             font-weight: 800;
             color: #ffffff;
         }
 
-        .brand-sub {
+        .brand-desc {
             margin: 2px 0 0;
             font-size: 0.78rem;
             color: var(--text-muted);
         }
 
-        .badges-row {
+        .chips-row {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
             margin-top: 12px;
         }
 
-        .badge {
+        .chip {
             font-size: 0.72rem;
+            font-weight: 700;
             padding: 4px 10px;
             border-radius: 999px;
             background: rgba(99, 102, 241, 0.14);
-            border: 1px solid rgba(99, 102, 241, 0.3);
+            border: 1px solid rgba(99, 102, 241, 0.32);
             color: #c7d2fe;
-            font-weight: 600;
         }
 
-        .badge.ios-badge {
-            background: rgba(16, 185, 129, 0.14);
-            border-color: rgba(16, 185, 129, 0.35);
-            color: #6ee7b7;
-        }
-
-        .badge.bg-badge {
+        .chip.turbo {
             background: rgba(245, 158, 11, 0.14);
             border-color: rgba(245, 158, 11, 0.35);
             color: #fcd34d;
         }
 
-        /* مبدل الأوضاع */
-        .mode-switcher {
+        .chip.ios {
+            background: rgba(16, 185, 129, 0.14);
+            border-color: rgba(16, 185, 129, 0.35);
+            color: #6ee7b7;
+        }
+
+        /* مبدل الصيغة */
+        .mode-tabs {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
             background: var(--bg-card);
             padding: 6px;
             border-radius: 16px;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-subtle);
         }
 
-        .mode-btn {
+        .mode-tab {
             border: none;
             border-radius: 12px;
             padding: 12px 10px;
             font-size: 0.9rem;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
             background: transparent;
             color: var(--text-muted);
-            transition: all 0.2s ease;
+            transition: all 0.18s ease;
             touch-action: manipulation;
         }
 
-        .mode-btn.active {
+        .mode-tab.active {
             background: linear-gradient(135deg, #6366f1, #4f46e5);
             color: #ffffff;
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.38);
         }
 
         /* البطاقات */
         .card {
             background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 18px;
-            padding: 18px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 16px 18px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
 
         .card-header {
@@ -186,129 +189,128 @@
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             flex-wrap: wrap;
         }
 
         .card-title {
             margin: 0;
-            font-size: 1rem;
-            font-weight: 700;
+            font-size: 0.98rem;
+            font-weight: 800;
             color: #f1f5f9;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        /* منطقة اختيار الملفات */
-        .drop-zone {
+        /* منطقة اختيار الملفات المتوافقة 100% مع iOS Safari (بدون display:none وبدون قيود accept) */
+        .upload-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .drop-label {
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            border: 2px dashed rgba(99, 102, 241, 0.45);
-            background: rgba(15, 23, 42, 0.75);
+            border: 2px dashed rgba(99, 102, 241, 0.48);
+            background: rgba(15, 23, 42, 0.8);
             border-radius: 18px;
             padding: 26px 16px;
             cursor: pointer;
             transition: all 0.2s ease;
             touch-action: manipulation;
+            overflow: hidden;
         }
 
-        .drop-zone:hover,
-        .drop-zone.drag-active {
+        .drop-label:hover,
+        .drop-label.drag-over {
             border-color: #818cf8;
-            background: rgba(99, 102, 241, 0.12);
+            background: rgba(99, 102, 241, 0.14);
+        }
+
+        /* مدخل الملفات شفاف ويغطي المنطقة دون display:none لضمان الفتح الفوري على iPhone */
+        .overlay-file-input {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.001;
+            cursor: pointer;
+            z-index: 5;
+            font-size: 16px;
         }
 
         .drop-icon {
-            width: 54px;
-            height: 54px;
+            width: 52px;
+            height: 52px;
             border-radius: 16px;
-            background: rgba(99, 102, 241, 0.16);
+            background: rgba(99, 102, 241, 0.18);
             color: #a5b4fc;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
+            pointer-events: none;
         }
 
-        .drop-title {
+        .drop-heading {
             font-size: 1.02rem;
-            font-weight: 700;
+            font-weight: 800;
             color: #ffffff;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
+            pointer-events: none;
         }
 
-        .drop-sub {
-            font-size: 0.82rem;
+        .drop-subtext {
+            font-size: 0.8rem;
             color: var(--text-muted);
-            margin-bottom: 14px;
             max-width: 440px;
+            margin-bottom: 14px;
+            pointer-events: none;
         }
 
-        .btn-upload-trigger {
+        .fake-cta-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             background: linear-gradient(135deg, #6366f1, #4f46e5);
             color: #ffffff;
-            border: none;
             border-radius: 12px;
-            padding: 13px 22px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
-            touch-action: manipulation;
+            padding: 12px 22px;
+            font-size: 0.94rem;
+            font-weight: 800;
+            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.36);
+            pointer-events: none;
         }
 
-        .btn-upload-trigger:active {
-            transform: scale(0.98);
-        }
-
-        .format-tags {
+        .ext-list {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 6px;
             margin-top: 14px;
+            pointer-events: none;
         }
 
-        .format-tag {
-            font-size: 0.7rem;
+        .ext-pill {
             font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
             padding: 3px 8px;
             border-radius: 8px;
             background: rgba(30, 41, 59, 0.95);
             color: #cbd5e1;
-            border: 1px solid rgba(148, 163, 184, 0.18);
+            border: 1px solid var(--border-subtle);
         }
 
-        /* مدخل الملفات المخفي بصرياً ولكن قابل للنقر برمجياً وعبر label */
-        .sr-file-input {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
-        /* قائمة الانتظار */
-        .queue-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-sm {
+        /* أزرار صغيرة */
+        .btn-mini {
+            position: relative;
             border: none;
             border-radius: 10px;
             padding: 8px 12px;
@@ -316,51 +318,54 @@
             font-weight: 700;
             cursor: pointer;
             touch-action: manipulation;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
         }
 
-        .btn-indigo-soft {
+        .btn-mini.indigo {
             background: rgba(99, 102, 241, 0.18);
             color: #c7d2fe;
-            border: 1px solid rgba(99, 102, 241, 0.32);
+            border: 1px solid rgba(99, 102, 241, 0.35);
         }
 
-        .btn-rose-soft {
+        .btn-mini.rose {
             background: rgba(239, 68, 68, 0.16);
             color: #fca5a5;
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            border: 1px solid rgba(239, 68, 68, 0.32);
         }
 
+        /* قائمة الانتظار */
         .queue-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
             max-height: 360px;
             overflow-y: auto;
-            padding-left: 2px;
         }
 
         .queue-item {
-            background: rgba(15, 23, 42, 0.85);
-            border: 1px solid var(--border-color);
+            background: var(--bg-card-inner);
+            border: 1px solid var(--border-subtle);
             border-radius: 14px;
             padding: 12px;
-            transition: border-color 0.2s ease;
         }
 
-        .queue-item.status-processing {
-            border-color: rgba(99, 102, 241, 0.65);
+        .queue-item.processing {
+            border-color: rgba(99, 102, 241, 0.7);
             background: rgba(30, 27, 75, 0.45);
         }
 
-        .queue-item.status-completed {
-            border-color: rgba(16, 185, 129, 0.5);
+        .queue-item.completed {
+            border-color: rgba(16, 185, 129, 0.55);
         }
 
-        .queue-item.status-error {
+        .queue-item.error {
             border-color: rgba(239, 68, 68, 0.55);
         }
 
-        .item-top {
+        .q-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -368,7 +373,7 @@
             flex-wrap: wrap;
         }
 
-        .item-info {
+        .q-left {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -376,7 +381,7 @@
             flex: 1;
         }
 
-        .item-index {
+        .q-num {
             width: 28px;
             height: 28px;
             border-radius: 8px;
@@ -390,12 +395,12 @@
             flex-shrink: 0;
         }
 
-        .item-names {
+        .q-meta-wrap {
             min-width: 0;
             flex: 1;
         }
 
-        .item-src-name {
+        .q-src {
             font-size: 0.86rem;
             font-weight: 700;
             color: #f8fafc;
@@ -404,68 +409,53 @@
             text-overflow: ellipsis;
         }
 
-        .item-meta {
+        .q-sub {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             gap: 6px;
             margin-top: 4px;
-            font-size: 0.75rem;
+            font-size: 0.74rem;
             color: var(--text-muted);
         }
 
-        .item-out-name {
+        .q-out {
             font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
             color: #a5b4fc;
             font-weight: 700;
         }
 
-        .code-pill {
-            background: rgba(30, 41, 59, 0.9);
+        .tag-badge {
+            background: rgba(30, 41, 59, 0.95);
             padding: 2px 7px;
             border-radius: 6px;
-            font-size: 0.72rem;
-            font-weight: 600;
+            font-size: 0.71rem;
+            font-weight: 700;
         }
 
-        .item-controls {
+        .q-actions {
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .status-pill {
+        .status-chip {
             font-size: 0.72rem;
-            font-weight: 700;
+            font-weight: 800;
             padding: 4px 9px;
             border-radius: 999px;
         }
 
-        .pill-pending {
-            background: rgba(148, 163, 184, 0.16);
-            color: #cbd5e1;
-        }
+        .st-pending { background: rgba(148, 163, 184, 0.16); color: #cbd5e1; }
+        .st-processing { background: rgba(99, 102, 241, 0.24); color: #c7d2fe; }
+        .st-completed { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+        .st-error { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
 
-        .pill-processing {
-            background: rgba(99, 102, 241, 0.22);
-            color: #c7d2fe;
-        }
-
-        .pill-completed {
-            background: rgba(16, 185, 129, 0.2);
-            color: #6ee7b7;
-        }
-
-        .pill-error {
-            background: rgba(239, 68, 68, 0.2);
-            color: #fca5a5;
-        }
-
-        .icon-btn {
+        .act-btn {
             width: 34px;
             height: 34px;
             border-radius: 10px;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-subtle);
             background: rgba(30, 41, 59, 0.95);
             color: #f8fafc;
             display: inline-flex;
@@ -477,90 +467,55 @@
             touch-action: manipulation;
         }
 
-        .icon-btn.emerald {
+        .act-btn.dl {
             background: rgba(16, 185, 129, 0.2);
-            border-color: rgba(16, 185, 129, 0.4);
+            border-color: rgba(16, 185, 129, 0.42);
             color: #6ee7b7;
         }
 
-        .icon-btn.danger {
+        .act-btn.del {
             background: rgba(239, 68, 68, 0.16);
             border-color: rgba(239, 68, 68, 0.35);
             color: #fca5a5;
         }
 
-        .item-progress-bar {
+        .progress-track {
             width: 100%;
             height: 6px;
-            background: rgba(30, 41, 59, 0.9);
+            background: rgba(30, 41, 59, 0.95);
             border-radius: 999px;
             overflow: hidden;
-            margin-top: 10px;
+            margin-top: 9px;
         }
 
-        .item-progress-fill {
+        .progress-bar {
             height: 100%;
             background: linear-gradient(90deg, #6366f1, #10b981);
             border-radius: 999px;
-            transition: width 0.15s ease;
+            transition: width 0.12s linear;
         }
 
         /* الإعدادات */
-        .settings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-            gap: 12px;
-        }
-
-        .field-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .field-label {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #cbd5e1;
-        }
-
-        /* 16px ضروري لمنع التكبير التلقائي في متصفح iPhone Safari */
-        select, input[type="text"], input[type="number"] {
-            width: 100%;
-            min-height: 44px;
-            padding: 10px 12px;
-            border-radius: 12px;
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            background: #0f172a;
-            color: #f8fafc;
-            font-size: 16px;
-            outline: none;
-        }
-
-        select:focus, input[type="text"]:focus, input[type="number"]:focus {
-            border-color: #6366f1;
-        }
-
-        .toggle-box {
+        .switch-card {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            background: rgba(15, 23, 42, 0.85);
+            background: var(--bg-card-inner);
             border: 1px solid rgba(99, 102, 241, 0.28);
             border-radius: 14px;
             padding: 12px 14px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
-        .toggle-title {
+        .switch-title {
             font-size: 0.88rem;
-            font-weight: 700;
+            font-weight: 800;
             color: #f8fafc;
         }
 
-        .toggle-desc {
-            font-size: 0.75rem;
+        .switch-desc {
+            font-size: 0.74rem;
             color: var(--text-muted);
             margin-top: 2px;
         }
@@ -573,38 +528,73 @@
             cursor: pointer;
         }
 
-        /* مجلد الحفظ */
-        .folder-bar {
+        .grid-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .field label {
+            font-size: 0.79rem;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+
+        /* 16px يمنع التكبير التلقائي لحقول الإدخال على iPhone Safari */
+        select, input[type="text"], input[type="number"] {
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.26);
+            background: var(--bg-card-inner);
+            color: #f8fafc;
+            font-size: 16px;
+            outline: none;
+        }
+
+        select:focus, input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #6366f1;
+        }
+
+        .folder-strip {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            background: rgba(15, 23, 42, 0.85);
-            border: 1px solid var(--border-color);
+            background: var(--bg-card-inner);
+            border: 1px solid var(--border-subtle);
             border-radius: 14px;
             padding: 12px 14px;
+            margin-top: 12px;
         }
 
-        .folder-info {
-            font-size: 0.82rem;
+        .folder-text {
+            font-size: 0.8rem;
             color: #cbd5e1;
         }
 
-        .folder-path {
+        .folder-val {
             font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
             color: #6ee7b7;
             font-weight: 700;
         }
 
-        /* أزرار التشغيل الرئيسية */
-        .action-bar {
+        /* أزرار التشغيل */
+        .cta-stack {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
-        .btn-primary-lg {
+        .btn-run {
             width: 100%;
             min-height: 52px;
             border: none;
@@ -614,17 +604,17 @@
             font-size: 1rem;
             font-weight: 800;
             cursor: pointer;
-            box-shadow: 0 8px 22px rgba(99, 102, 241, 0.35);
+            box-shadow: 0 8px 22px rgba(99, 102, 241, 0.36);
             touch-action: manipulation;
         }
 
-        .btn-primary-lg:disabled {
+        .btn-run:disabled {
             opacity: 0.45;
             cursor: not-allowed;
             box-shadow: none;
         }
 
-        .btn-stop {
+        .btn-halt {
             width: 100%;
             min-height: 46px;
             border: 1px solid rgba(239, 68, 68, 0.45);
@@ -632,791 +622,708 @@
             background: rgba(239, 68, 68, 0.18);
             color: #fca5a5;
             font-size: 0.92rem;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
-            touch-action: manipulation;
         }
 
-        .overall-box {
-            background: rgba(15, 23, 42, 0.9);
-            border: 1px solid rgba(99, 102, 241, 0.35);
-            border-radius: 14px;
+        .overall-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-strong);
+            border-radius: 16px;
             padding: 14px;
         }
 
-        .overall-top {
+        .overall-head {
             display: flex;
             justify-content: space-between;
             font-size: 0.84rem;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 8px;
         }
 
-        .complete-banner {
+        .done-banner {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.4);
-            border-radius: 14px;
+            background: rgba(16, 185, 129, 0.16);
+            border: 1px solid rgba(16, 185, 129, 0.42);
+            border-radius: 16px;
             padding: 14px;
             color: #6ee7b7;
             font-size: 0.88rem;
-            font-weight: 700;
+            font-weight: 800;
         }
 
-        .btn-emerald {
+        .btn-dl-all {
             border: none;
             border-radius: 12px;
             padding: 10px 16px;
             background: #10b981;
-            color: #06281e;
+            color: #052e16;
             font-size: 0.86rem;
             font-weight: 800;
             cursor: pointer;
-            touch-action: manipulation;
         }
 
         /* المعاينة */
-        .preview-box {
+        .preview-panel {
             margin-top: 12px;
             background: #050811;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-subtle);
             border-radius: 14px;
             padding: 12px;
         }
 
-        .preview-box video,
-        .preview-box audio {
+        .preview-panel video,
+        .preview-panel audio {
             width: 100%;
             border-radius: 10px;
             margin-top: 8px;
         }
 
-        /* السجل التقني */
-        .console-log {
+        /* سجل العمليات التقني */
+        .console-box {
             background: #050811;
-            border: 1px solid rgba(148, 163, 184, 0.16);
+            border: 1px solid var(--border-subtle);
             border-radius: 12px;
             padding: 10px 12px;
             font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
             font-size: 0.74rem;
             color: #94a3b8;
-            max-height: 165px;
+            max-height: 155px;
             overflow-y: auto;
             direction: ltr;
             text-align: left;
             line-height: 1.55;
         }
 
-        /* إشعار عائم */
-        .toast {
+        .toast-msg {
             position: fixed;
             bottom: calc(18px + var(--safe-bottom));
             left: 50%;
             transform: translateX(-50%);
             background: #1e293b;
             color: #f8fafc;
-            border: 1px solid rgba(148, 163, 184, 0.3);
+            border: 1px solid rgba(148, 163, 184, 0.35);
             padding: 11px 18px;
             border-radius: 999px;
             font-size: 0.84rem;
             font-weight: 700;
             z-index: 9999;
-            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
             max-width: 92vw;
             text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <main class="app-shell">
         <!-- الترويسة -->
         <header class="header-card">
-            <div class="header-top">
-                <div class="brand">
-                    <div class="brand-icon" aria-hidden="true">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <div class="brand-row">
+                <div class="brand-left">
+                    <div class="brand-logo" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="2" y="4" width="20" height="16" rx="3"></rect>
                             <polygon points="10 9 15 12 10 15 10 9"></polygon>
                         </svg>
                     </div>
                     <div>
-                        <h1 class="brand-title">محول الكاميرات الاحترافي (AVI &amp; MP3)</h1>
-                        <p class="brand-sub">تحويل متتابع بالحجم الأصلي المتوافق مع الكاميرات الرقمية وأجهزة العرض</p>
+                        <h1 class="brand-title">محول الكاميرات الاحترافي السريع (AVI &amp; MP3)</h1>
+                        <p class="brand-desc">محرك تحويل متدفق فائق السرعة بحجم مطابق للأصل وتوافق تام مع الكاميرات الرقمية</p>
                     </div>
                 </div>
             </div>
-            <div class="badges-row">
-                <span class="badge">RIFF/AVI + MJPEG + PCM</span>
-                <span class="badge">LAME MP3</span>
-                <span class="badge">مطابقة الحجم الأصلي تلقائياً</span>
-                <span id="ios-badge" class="badge ios-badge hidden">وضع iPhone Safari مفعّل</span>
-                <span id="bg-badge" class="badge bg-badge hidden">يعمل في الخلفية</span>
+            <div class="chips-row">
+                <span class="chip">RIFF/AVI + MJPEG + PCM</span>
+                <span class="chip">LAME MP3</span>
+                <span class="chip turbo">محرك التوربو السريع ⚡</span>
+                <span id="ios-chip" class="chip ios hidden">متوافق تلقائياً مع iPhone Safari</span>
             </div>
         </header>
 
-        <!-- اختيار صيغة الإخراج -->
-        <div class="mode-switcher" role="tablist">
-            <button type="button" id="mode-avi-btn" class="mode-btn active" onclick="switchMode('AVI')">
+        <!-- مبدل صيغة الإخراج -->
+        <nav class="mode-tabs" role="tablist">
+            <button type="button" id="tab-avi" class="mode-tab active" onclick="setOutputMode('AVI')">
                 تحويل فيديو إلى AVI (MOV00000.AVI)
             </button>
-            <button type="button" id="mode-mp3-btn" class="mode-btn" onclick="switchMode('MP3')">
+            <button type="button" id="tab-mp3" class="mode-tab" onclick="setOutputMode('MP3')">
                 تحويل صوت إلى MP3 (AUD00000.MP3)
             </button>
-        </div>
+        </nav>
 
-        <!-- منطقة إضافة الملفات -->
+        <!-- منطقة اختيار الملفات (بدون قيود accept لضمان عمل iOS Files و Photos بسلاسة) -->
         <section class="card">
-            <input type="file" id="file-input" class="sr-file-input" multiple accept="video/*,audio/*,.mp4,.mkv,.mov,.webm,.avi,.flv,.wmv,.m4v,.3gp,.mp3,.wav,.m4a,.ogg,.aac,.flac">
-            <input type="file" id="add-more-input" class="sr-file-input" multiple accept="video/*,audio/*,.mp4,.mkv,.mov,.webm,.avi,.flv,.wmv,.m4v,.3gp,.mp3,.wav,.m4a,.ogg,.aac,.flac">
-
-            <label for="file-input" id="drop-zone" class="drop-zone">
-                <div class="drop-icon" aria-hidden="true">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="17 8 12 3 7 8"></polyline>
-                        <line x1="12" y1="3" x2="12" y2="15"></line>
-                    </svg>
-                </div>
-                <div class="drop-title">اختر مقاطع الفيديو أو الصوت لتحويلها</div>
-                <div class="drop-sub">يمكنك تحديد ملف واحد أو عدة ملفات دفعة واحدة من تطبيق الملفات أو الصور لتحويلها بالتتابع</div>
-                <button type="button" id="select-files-btn" class="btn-upload-trigger">
-                    + اختيار ملفات من الجهاز
-                </button>
-                <div class="format-tags">
-                    <span class="format-tag">MP4</span>
-                    <span class="format-tag">MOV</span>
-                    <span class="format-tag">MKV</span>
-                    <span class="format-tag">AVI</span>
-                    <span class="format-tag">WEBM</span>
-                    <span class="format-tag">MP3</span>
-                    <span class="format-tag">M4A</span>
-                    <span class="format-tag">WAV</span>
-                </div>
-            </label>
+            <div class="upload-wrapper">
+                <label for="main-file-input" id="drop-label" class="drop-label">
+                    <input type="file" id="main-file-input" class="overlay-file-input" multiple>
+                    <div class="drop-icon" aria-hidden="true">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </div>
+                    <div class="drop-heading">اضغط هنا لاختيار مقاطع الفيديو أو الصوت</div>
+                    <div class="drop-subtext">اختر ملفاً واحداً أو عدة ملفات دفعة واحدة من تطبيق الملفات أو ألبوم الصور لتحويلها بالتتابع</div>
+                    <span class="fake-cta-btn">+ اختيار ملفات من الجهاز</span>
+                    <div class="ext-list">
+                        <span class="ext-pill">MP4</span>
+                        <span class="ext-pill">MOV</span>
+                        <span class="ext-pill">MKV</span>
+                        <span class="ext-pill">AVI</span>
+                        <span class="ext-pill">WEBM</span>
+                        <span class="ext-pill">FLV</span>
+                        <span class="ext-pill">WMV</span>
+                        <span class="ext-pill">MP3</span>
+                        <span class="ext-pill">M4A</span>
+                        <span class="ext-pill">WAV</span>
+                    </div>
+                </label>
+            </div>
         </section>
 
-        <!-- بطاقة قائمة الانتظار -->
-        <section id="queue-card" class="card hidden">
+        <!-- قائمة التحويل المتسلسلة -->
+        <section id="queue-section" class="card hidden">
             <div class="card-header">
                 <h2 class="card-title">
-                    <span>قائمة التحويل المتتالي</span>
-                    <span id="queue-count" class="code-pill">0 ملفات</span>
+                    <span>قائمة التحويل المتتابع</span>
+                    <span id="queue-badge" class="tag-badge">0 ملفات</span>
                 </h2>
-                <div class="queue-actions">
-                    <button type="button" id="add-more-btn" class="btn-sm btn-indigo-soft">+ إضافة</button>
-                    <button type="button" id="clear-queue-btn" class="btn-sm btn-rose-soft">مسح الكل</button>
+                <div style="display:flex; gap:8px;">
+                    <label for="more-file-input" class="btn-mini indigo" style="overflow:hidden;">
+                        + إضافة المزيد
+                        <input type="file" id="more-file-input" class="overlay-file-input" multiple>
+                    </label>
+                    <button type="button" id="clear-btn" class="btn-mini rose">مسح القائمة</button>
                 </div>
             </div>
-            <div id="queue-status" style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">
-                جاهز لبدء التحويل المتسلسل
+            <div id="queue-summary" style="font-size:0.79rem; color:var(--text-muted); margin-bottom:10px;">
+                جاهز لبدء التحويل المتتابع
             </div>
-            <div id="queue-list" class="queue-list"></div>
+            <div id="queue-container" class="queue-list"></div>
 
             <!-- مشغل المعاينة الفوري -->
-            <div id="preview-box" class="preview-box hidden">
+            <div id="preview-panel" class="preview-panel hidden">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span id="preview-title" style="font-size:0.82rem; font-weight:700; color:#c7d2fe;">معاينة الملف</span>
-                    <button type="button" onclick="closePreview()" class="btn-sm btn-rose-soft">إغلاق المعاينة</button>
+                    <span id="preview-heading" style="font-size:0.82rem; font-weight:800; color:#c7d2fe;">معاينة الملف</span>
+                    <button type="button" onclick="hidePreview()" class="btn-mini rose">إغلاق</button>
                 </div>
-                <div id="preview-media-container"></div>
+                <div id="preview-slot"></div>
             </div>
         </section>
 
-        <!-- إعدادات التحويل والحجم والتسمية -->
+        <!-- إعدادات السرعة والحجم والتسمية -->
         <section class="card">
             <div class="card-header">
-                <h2 class="card-title">إعدادات التوافق والحجم التلقائي</h2>
+                <h2 class="card-title">إعدادات السرعة والحجم والتوافق</h2>
             </div>
 
-            <!-- خيار مطابقة الحجم الأصلي -->
-            <div class="toggle-box">
+            <div class="switch-card">
                 <div>
-                    <div class="toggle-title">مطابقة الحجم الأصلي تلقائياً (Same as Original Size)</div>
-                    <div class="toggle-desc">معايرة الضغط والدقة ومعدل البت تلقائياً ليبقى الملف الناتج بنفس حجم الملف الأصلي تقريباً دون تضخم</div>
+                    <div class="switch-title">وضع التحويل السريع (Turbo Stream Pipeline)</div>
+                    <div class="switch-desc">التقاط متدفق للإطارات مع فك ترميز عتادي متسارع واستخراج صوت متوازي لإنهاء التحويل في ثوانٍ</div>
+                </div>
+                <input type="checkbox" id="turbo-checkbox" checked>
+            </div>
+
+            <div class="switch-card">
+                <div>
+                    <div class="switch-title">مطابقة الحجم الأصلي تلقائياً (Smart Target Size)</div>
+                    <div class="switch-desc">ضبط ميزانية البت والدقة والجودة تلقائياً ليبقى الملف الناتج بنفس حجم الملف الأصلي تقريباً</div>
                 </div>
                 <input type="checkbox" id="match-size-checkbox" checked>
             </div>
 
-            <!-- إعدادات AVI -->
-            <div id="avi-settings" class="settings-grid">
-                <div class="field-group">
-                    <label class="field-label" for="avi-resolution">دقة الفيديو (الأبعاد)</label>
-                    <select id="avi-resolution">
-                        <option value="auto" selected>تلقائي (مطابق للحجم الأصلي)</option>
+            <!-- خيارات AVI -->
+            <div id="avi-options" class="grid-form">
+                <div class="field">
+                    <label for="avi-res">دقة الفيديو (الأبعاد)</label>
+                    <select id="avi-res">
+                        <option value="auto" selected>تلقائي (متوافق ومطابق للحجم)</option>
                         <option value="640x480">640×480 (VGA قياسي للكاميرات)</option>
-                        <option value="320x240">320×240 (QVGA خفيف جداً)</option>
+                        <option value="320x240">320×240 (QVGA فائق السرعة)</option>
                         <option value="800x600">800×600 (SVGA متوسط)</option>
                         <option value="1280x720">1280×720 (HD 720p)</option>
                         <option value="original">الأبعاد الأصلية الكاملة</option>
                     </select>
                 </div>
-                <div class="field-group">
-                    <label class="field-label" for="avi-fps">معدل الإطارات (FPS)</label>
+                <div class="field">
+                    <label for="avi-fps">معدل الإطارات (FPS)</label>
                     <select id="avi-fps">
-                        <option value="auto" selected>تلقائي (موازن للحجم)</option>
-                        <option value="15">15 إطار/ثانية (حجم صغير)</option>
-                        <option value="20">20 إطار/ثانية (متوازن)</option>
-                        <option value="24">24 إطار/ثانية (سينمائي)</option>
-                        <option value="30">30 إطار/ثانية (سلس)</option>
+                        <option value="auto" selected>تلقائي (سريع ومتوازن)</option>
+                        <option value="15">15 إطار/ثانية (قياسي للكاميرات)</option>
+                        <option value="20">20 إطار/ثانية</option>
+                        <option value="24">24 إطار/ثانية</option>
+                        <option value="30">30 إطار/ثانية</option>
                     </select>
                 </div>
-                <div class="field-group">
-                    <label class="field-label" for="avi-quality">جودة ضغط MJPEG</label>
-                    <select id="avi-quality">
+                <div class="field">
+                    <label for="avi-qual">جودة ضغط MJPEG</label>
+                    <select id="avi-qual">
                         <option value="auto" selected>تلقائي (لمطابقة الحجم الأصلي)</option>
-                        <option value="0.45">اقتصادية (45%)</option>
+                        <option value="0.45">اقتصادية سريعة (45%)</option>
                         <option value="0.65">متوسطة متوازنة (65%)</option>
                         <option value="0.80">عالية (80%)</option>
                     </select>
                 </div>
             </div>
 
-            <!-- إعدادات MP3 -->
-            <div id="mp3-settings" class="settings-grid hidden">
-                <div class="field-group">
-                    <label class="field-label" for="mp3-bitrate">معدل البت (Bitrate)</label>
-                    <select id="mp3-bitrate">
+            <!-- خيارات MP3 -->
+            <div id="mp3-options" class="grid-form hidden">
+                <div class="field">
+                    <label for="mp3-kbps">معدل البت (Bitrate)</label>
+                    <select id="mp3-kbps">
                         <option value="auto" selected>تلقائي (مطابق للحجم الأصلي)</option>
-                        <option value="64">64 kbps (حجم مضغوط جداً)</option>
+                        <option value="64">64 kbps (حجم صغير)</option>
                         <option value="96">96 kbps (متوازن)</option>
-                        <option value="128">128 kbps (قياسي للكاميرات)</option>
+                        <option value="128">128 kbps (قياسي)</option>
                         <option value="192">192 kbps (جودة عالية)</option>
                         <option value="320">320 kbps (أعلى جودة)</option>
                     </select>
                 </div>
-                <div class="field-group">
-                    <label class="field-label" for="mp3-channels">قنوات الصوت</label>
-                    <select id="mp3-channels">
-                        <option value="1" selected>أحادي Mono (متوافق وحجم أصغر)</option>
+                <div class="field">
+                    <label for="mp3-ch">قنوات الصوت</label>
+                    <select id="mp3-ch">
+                        <option value="1" selected>أحادي Mono (الأسرع والأكثر توافقاً)</option>
                         <option value="2">ستيريو Stereo</option>
                     </select>
                 </div>
             </div>
 
-            <!-- إعدادات التسمية المتسلسلة -->
-            <div class="settings-grid" style="margin-top:12px;">
-                <div class="field-group">
-                    <label class="field-label" for="naming-mode">نمط تسمية الملفات الناتجة</label>
-                    <select id="naming-mode">
+            <!-- خيارات التسمية المتسلسلة -->
+            <div class="grid-form" style="margin-top:12px;">
+                <div class="field">
+                    <label for="name-pattern">نمط تسمية الملفات</label>
+                    <select id="name-pattern">
                         <option value="camera" selected>تسمية الكاميرات المتسلسلة (MOV00000 / AUD00000)</option>
                         <option value="original">الاحتفاظ باسم الملف الأصلي</option>
                     </select>
                 </div>
-                <div class="field-group" id="prefix-group">
-                    <label class="field-label" for="file-prefix">بادئة التسمية</label>
-                    <input type="text" id="file-prefix" value="MOV" maxlength="12" placeholder="MOV">
+                <div class="field" id="prefix-field">
+                    <label for="prefix-input">بادئة التسمية</label>
+                    <input type="text" id="prefix-input" value="MOV" maxlength="12" placeholder="MOV">
                 </div>
-                <div class="field-group" id="start-index-group">
-                    <label class="field-label" for="start-index">رقم البداية (Start Index)</label>
-                    <input type="number" id="start-index" value="0" min="0" max="99999">
+                <div class="field" id="index-field">
+                    <label for="index-input">رقم البداية (Start Index)</label>
+                    <input type="number" id="index-input" value="0" min="0" max="99999">
                 </div>
             </div>
 
-            <!-- موقع حفظ الملفات -->
-            <div class="folder-bar" style="margin-top:14px;">
-                <div class="folder-info">
-                    موقع الحفظ: <span id="folder-name-display" class="folder-path">تنزيلات المتصفح الافتراضية (Files / Downloads)</span>
+            <!-- مجلد الحفظ -->
+            <div class="folder-strip">
+                <div class="folder-text">
+                    موقع الحفظ: <span id="save-location-text" class="folder-val">تنزيلات المتصفح التلقائية (Files / Downloads)</span>
                 </div>
-                <button type="button" id="pick-folder-btn" class="btn-sm btn-indigo-soft">تحديد مجلد الحفظ</button>
+                <button type="button" id="choose-folder-btn" class="btn-mini indigo">تحديد مجلد الحفظ</button>
             </div>
         </section>
 
-        <!-- أزرار التحكم والتقدم -->
-        <section class="action-bar">
-            <button type="button" id="convert-btn" class="btn-primary-lg" disabled>
-                بدء التحويل المتتالي لجميع الملفات
+        <!-- أزرار البدء والتقدم -->
+        <section class="cta-stack">
+            <button type="button" id="start-btn" class="btn-run" disabled>
+                بدء التحويل السريع لجميع الملفات
             </button>
-            <button type="button" id="stop-btn" class="btn-stop hidden">
+            <button type="button" id="stop-btn" class="btn-halt hidden">
                 إيقاف القائمة بعد الملف الحالي
             </button>
 
-            <div id="overall-progress-box" class="overall-box hidden">
-                <div class="overall-top">
-                    <span id="overall-label">جاري معالجة الملف 1 من 1...</span>
-                    <span id="overall-percent">0%</span>
+            <div id="overall-panel" class="overall-panel hidden">
+                <div class="overall-head">
+                    <span id="overall-text">جاري المعالجة...</span>
+                    <span id="overall-pct">0%</span>
                 </div>
-                <div class="item-progress-bar" style="margin-top:0; height:8px;">
-                    <div id="overall-fill" class="item-progress-fill" style="width:0%"></div>
+                <div class="progress-track" style="margin-top:0; height:8px;">
+                    <div id="overall-bar" class="progress-bar" style="width:0%"></div>
                 </div>
             </div>
 
-            <div id="batch-complete-banner" class="complete-banner hidden">
-                <span id="batch-complete-msg">اكتمل تحويل جميع المقاطع بنجاح!</span>
-                <button type="button" id="download-all-btn" class="btn-emerald">تنزيل جميع الملفات المكتملة</button>
+            <div id="done-banner" class="done-banner hidden">
+                <span id="done-text">اكتمل تحويل جميع الملفات بنجاح!</span>
+                <button type="button" id="dl-all-btn" class="btn-dl-all">تنزيل جميع الملفات المكتملة</button>
             </div>
         </section>
 
-        <!-- سجل المعالجة التقني -->
+        <!-- سجل المعالجة التقني (قابل للطي) -->
         <section class="card">
-            <div class="card-header" style="margin-bottom:8px;">
-                <h2 class="card-title" style="font-size:0.88rem;">سجل المعالجة التقني (Console)</h2>
-                <button type="button" onclick="clearConsoleLog()" class="btn-sm btn-indigo-soft" style="padding:4px 10px; font-size:0.74rem;">مسح السجل</button>
+            <div class="card-header" style="margin-bottom:0;">
+                <h2 class="card-title" style="font-size:0.88rem;">سجل المعالجة التقني (System Console)</h2>
+                <div style="display:flex; gap:6px;">
+                    <button type="button" id="toggle-console-btn" class="btn-mini indigo" style="padding:5px 10px; font-size:0.74rem;">إخفاء السجل</button>
+                    <button type="button" onclick="clearLog()" class="btn-mini rose" style="padding:5px 10px; font-size:0.74rem;">مسح</button>
+                </div>
             </div>
-            <div id="console-log" class="console-log"></div>
+            <div id="console-box" class="console-box" style="margin-top:10px;"></div>
         </section>
-    </div>
+    </main>
 
-    <div id="toast" class="toast hidden"></div>
+    <div id="toast-msg" class="toast-msg hidden"></div>
 
     <script>
         'use strict';
 
         // =========================================================================
-        // 1. الحالة العامة والتعرف التلقائي على بيئة iPhone / iOS
+        // 1. الحالة العامة والتعرف على iPhone / iOS Safari
         // =========================================================================
-        let currentMode = 'AVI'; // 'AVI' | 'MP3'
-        let batchQueue = [];
-        let isConverting = false;
-        let stopRequested = false;
-        let selectedDirectoryHandle = null;
-        let wakeLockSentinel = null;
-        let toastTimer = null;
+        let outputMode = 'AVI'; // 'AVI' | 'MP3'
+        let queue = [];
+        let isRunning = false;
+        let abortFlag = false;
+        let dirHandle = null;
+        let wakeLockObj = null;
+        let toastTimeout = null;
 
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
             (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-        // مراجع عناصر الواجهة
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('file-input');
-        const addMoreInput = document.getElementById('add-more-input');
-        const selectFilesBtn = document.getElementById('select-files-btn');
-        const addMoreBtn = document.getElementById('add-more-btn');
-        const clearQueueBtn = document.getElementById('clear-queue-btn');
-        const queueCard = document.getElementById('queue-card');
-        const queueCountEl = document.getElementById('queue-count');
-        const queueStatusEl = document.getElementById('queue-status');
-        const queueList = document.getElementById('queue-list');
-        const convertBtn = document.getElementById('convert-btn');
+        // مراجع العناصر
+        const mainFileInput = document.getElementById('main-file-input');
+        const moreFileInput = document.getElementById('more-file-input');
+        const dropLabel = document.getElementById('drop-label');
+        const queueSection = document.getElementById('queue-section');
+        const queueBadge = document.getElementById('queue-badge');
+        const queueSummary = document.getElementById('queue-summary');
+        const queueContainer = document.getElementById('queue-container');
+        const startBtn = document.getElementById('start-btn');
         const stopBtn = document.getElementById('stop-btn');
-        const overallProgressBox = document.getElementById('overall-progress-box');
-        const overallLabel = document.getElementById('overall-label');
-        const overallPercent = document.getElementById('overall-percent');
-        const overallFill = document.getElementById('overall-fill');
-        const batchCompleteBanner = document.getElementById('batch-complete-banner');
-        const batchCompleteMsg = document.getElementById('batch-complete-msg');
-        const downloadAllBtn = document.getElementById('download-all-btn');
-        const consoleLogEl = document.getElementById('console-log');
-        const toastEl = document.getElementById('toast');
-        const bgBadge = document.getElementById('bg-badge');
+        const overallPanel = document.getElementById('overall-panel');
+        const overallText = document.getElementById('overall-text');
+        const overallPct = document.getElementById('overall-pct');
+        const overallBar = document.getElementById('overall-bar');
+        const doneBanner = document.getElementById('done-banner');
+        const doneText = document.getElementById('done-text');
+        const dlAllBtn = document.getElementById('dl-all-btn');
+        const consoleBox = document.getElementById('console-box');
+        const toastMsg = document.getElementById('toast-msg');
 
         // =========================================================================
-        // 2. دوال السجل والإشعارات والخلفيات
+        // 2. دوال السجل والتنبيهات وإدارة الطاقة (Wake Lock)
         // =========================================================================
-        function logTech(message, level) {
+        function logSys(msg, level) {
             try {
-                const now = new Date();
-                const timeStr = now.toTimeString().split(' ')[0];
-                const tag = level === 'error' ? '[ERR]' : (level === 'warn' ? '[WRN]' : '[SYS]');
+                const t = new Date().toTimeString().split(' ')[0];
+                const prefix = level === 'error' ? '[ERR]' : (level === 'warn' ? '[WRN]' : '[SYS]');
                 const color = level === 'error' ? '#fca5a5' : (level === 'warn' ? '#fcd34d' : '#94a3b8');
-                const line = document.createElement('div');
-                line.style.color = color;
-                line.textContent = `${timeStr} ${tag} ${message}`;
-                if (consoleLogEl) {
-                    consoleLogEl.appendChild(line);
-                    consoleLogEl.scrollTop = consoleLogEl.scrollHeight;
-                }
-            } catch (_) {
-                // تجاهل أي خطأ في السجل
-            }
+                const row = document.createElement('div');
+                row.style.color = color;
+                row.textContent = `${t} ${prefix} ${msg}`;
+                consoleBox.appendChild(row);
+                consoleBox.scrollTop = consoleBox.scrollHeight;
+            } catch (_) {}
         }
 
-        function clearConsoleLog() {
-            if (consoleLogEl) consoleLogEl.innerHTML = '';
-            logTech('Console cleared.');
+        function clearLog() {
+            consoleBox.innerHTML = '';
+            logSys('Console cleared.');
         }
 
-        function showToast(msg, type) {
-            if (!toastEl) return;
-            toastEl.textContent = msg;
-            toastEl.style.borderColor = type === 'error'
-                ? 'rgba(239, 68, 68, 0.6)'
-                : (type === 'success' ? 'rgba(16, 185, 129, 0.6)' : 'rgba(99, 102, 241, 0.6)');
-            toastEl.classList.remove('hidden');
-            if (toastTimer) clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => {
-                toastEl.classList.add('hidden');
-            }, 3400);
+        document.getElementById('toggle-console-btn').addEventListener('click', (e) => {
+            const isHidden = consoleBox.classList.toggle('hidden');
+            e.target.textContent = isHidden ? 'إظهار السجل' : 'إخفاء السجل';
+        });
+
+        function notify(text, kind) {
+            toastMsg.textContent = text;
+            toastMsg.style.borderColor = kind === 'error'
+                ? 'rgba(239, 68, 68, 0.65)'
+                : (kind === 'success' ? 'rgba(16, 185, 129, 0.65)' : 'rgba(99, 102, 241, 0.65)');
+            toastMsg.classList.remove('hidden');
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toastMsg.classList.add('hidden'), 3200);
         }
 
-        function formatBytes(bytes) {
+        function formatSize(bytes) {
             if (!bytes || bytes <= 0) return '0 B';
-            const k = 1024;
-            const sizes = ['B', 'KB', 'MB', 'GB'];
-            const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1);
-            return (bytes / Math.pow(k, i)).toFixed(i === 0 ? 0 : 2) + ' ' + sizes[i];
+            const units = ['B', 'KB', 'MB', 'GB'];
+            const idx = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+            return (bytes / Math.pow(1024, idx)).toFixed(idx === 0 ? 0 : 2) + ' ' + units[idx];
         }
 
-        function yieldToUI() {
-            return new Promise((resolve) => setTimeout(resolve, 0));
+        function tickUI() {
+            return new Promise((r) => setTimeout(r, 0));
         }
 
-        async function requestWakeLock() {
+        async function acquireWakeLock() {
             try {
-                if ('wakeLock' in navigator && !wakeLockSentinel) {
-                    wakeLockSentinel = await navigator.wakeLock.request('screen');
-                    logTech('Screen Wake Lock acquired.');
+                if ('wakeLock' in navigator && !wakeLockObj) {
+                    wakeLockObj = await navigator.wakeLock.request('screen');
+                    logSys('Wake Lock active.');
                 }
-            } catch (_) {
-                // غير مدعوم أو مرفوض
-            }
+            } catch (_) {}
         }
 
         async function releaseWakeLock() {
             try {
-                if (wakeLockSentinel) {
-                    await wakeLockSentinel.release();
-                    wakeLockSentinel = null;
-                    logTech('Screen Wake Lock released.');
+                if (wakeLockObj) {
+                    await wakeLockObj.release();
+                    wakeLockObj = null;
                 }
             } catch (_) {
-                wakeLockSentinel = null;
+                wakeLockObj = null;
             }
         }
 
         document.addEventListener('visibilitychange', () => {
-            if (document.hidden && isConverting) {
-                if (bgBadge) bgBadge.classList.remove('hidden');
-                logTech('App moved to background; continuing batch queue...');
-            } else {
-                if (bgBadge) bgBadge.classList.add('hidden');
-                if (isConverting) {
-                    requestWakeLock();
-                    updateStats();
-                }
+            if (!document.hidden && isRunning) {
+                acquireWakeLock();
+                refreshStats();
             }
         });
 
         // =========================================================================
-        // 3. تبديل الأوضاع والتسمية التلقائية
+        // 3. تبديل الصيغة والتسمية المتسلسلة
         // =========================================================================
-        function switchMode(mode) {
-            currentMode = mode === 'MP3' ? 'MP3' : 'AVI';
-            const aviBtn = document.getElementById('mode-avi-btn');
-            const mp3Btn = document.getElementById('mode-mp3-btn');
-            const aviSettings = document.getElementById('avi-settings');
-            const mp3Settings = document.getElementById('mp3-settings');
-            const prefixInput = document.getElementById('file-prefix');
+        function setOutputMode(mode) {
+            outputMode = mode === 'MP3' ? 'MP3' : 'AVI';
+            const tabAvi = document.getElementById('tab-avi');
+            const tabMp3 = document.getElementById('tab-mp3');
+            const aviOpt = document.getElementById('avi-options');
+            const mp3Opt = document.getElementById('mp3-options');
+            const prefixEl = document.getElementById('prefix-input');
 
-            if (currentMode === 'AVI') {
-                aviBtn.classList.add('active');
-                mp3Btn.classList.remove('active');
-                aviSettings.classList.remove('hidden');
-                mp3Settings.classList.add('hidden');
-                if (prefixInput && (prefixInput.value === 'AUD' || !prefixInput.value)) {
-                    prefixInput.value = 'MOV';
-                }
+            if (outputMode === 'AVI') {
+                tabAvi.classList.add('active');
+                tabMp3.classList.remove('active');
+                aviOpt.classList.remove('hidden');
+                mp3Opt.classList.add('hidden');
+                if (!prefixEl.value || prefixEl.value === 'AUD') prefixEl.value = 'MOV';
             } else {
-                mp3Btn.classList.add('active');
-                aviBtn.classList.remove('active');
-                mp3Settings.classList.remove('hidden');
-                aviSettings.classList.add('hidden');
-                if (prefixInput && (prefixInput.value === 'MOV' || !prefixInput.value)) {
-                    prefixInput.value = 'AUD';
-                }
+                tabMp3.classList.add('active');
+                tabAvi.classList.remove('active');
+                mp3Opt.classList.remove('hidden');
+                aviOpt.classList.add('hidden');
+                if (!prefixEl.value || prefixEl.value === 'MOV') prefixEl.value = 'AUD';
             }
 
-            recalculateQueueNames();
+            assignOutputFilenames();
             renderQueue();
-            logTech(`Output mode switched to ${currentMode}.`);
+            logSys(`Output mode set to ${outputMode}.`);
         }
 
-        function recalculateQueueNames() {
-            const namingMode = document.getElementById('naming-mode').value;
-            const rawPrefix = (document.getElementById('file-prefix').value || (currentMode === 'AVI' ? 'MOV' : 'AUD')).trim();
-            const safePrefix = rawPrefix.replace(/[^a-zA-Z0-9_-]/g, '') || (currentMode === 'AVI' ? 'MOV' : 'AUD');
-            const startIdx = Math.max(0, parseInt(document.getElementById('start-index').value, 10) || 0);
-            const ext = currentMode === 'AVI' ? '.AVI' : '.MP3';
+        function assignOutputFilenames() {
+            const pattern = document.getElementById('name-pattern').value;
+            const rawPref = (document.getElementById('prefix-input').value || (outputMode === 'AVI' ? 'MOV' : 'AUD')).trim();
+            const safePref = rawPref.replace(/[^a-zA-Z0-9_-]/g, '') || (outputMode === 'AVI' ? 'MOV' : 'AUD');
+            const startNum = Math.max(0, parseInt(document.getElementById('index-input').value, 10) || 0);
+            const ext = outputMode === 'AVI' ? '.AVI' : '.MP3';
 
-            batchQueue.forEach((item, idx) => {
-                if (item.status === 'completed' && item.outputName) return;
-                if (namingMode === 'original') {
-                    const base = item.file.name.replace(/\.[^/.]+$/, '') || `FILE_${startIdx + idx}`;
-                    item.outputName = base + ext;
+            queue.forEach((item, i) => {
+                if (item.status === 'completed' && item.outName) return;
+                if (pattern === 'original') {
+                    const base = item.file.name.replace(/\.[^/.]+$/, '') || `FILE_${startNum + i}`;
+                    item.outName = base + ext;
                 } else {
-                    const numStr = String(startIdx + idx).padStart(5, '0');
-                    item.outputName = `${safePrefix}${numStr}${ext}`;
+                    item.outName = `${safePref}${String(startNum + i).padStart(5, '0')}${ext}`;
                 }
             });
         }
 
-        document.getElementById('naming-mode').addEventListener('change', (e) => {
+        document.getElementById('name-pattern').addEventListener('change', (e) => {
             const isCam = e.target.value === 'camera';
-            document.getElementById('prefix-group').classList.toggle('hidden', !isCam);
-            document.getElementById('start-index-group').classList.toggle('hidden', !isCam);
-            recalculateQueueNames();
+            document.getElementById('prefix-field').classList.toggle('hidden', !isCam);
+            document.getElementById('index-field').classList.toggle('hidden', !isCam);
+            assignOutputFilenames();
             renderQueue();
         });
 
-        document.getElementById('file-prefix').addEventListener('input', () => {
-            recalculateQueueNames();
+        document.getElementById('prefix-input').addEventListener('input', () => {
+            assignOutputFilenames();
             renderQueue();
         });
 
-        document.getElementById('start-index').addEventListener('input', () => {
-            recalculateQueueNames();
+        document.getElementById('index-input').addEventListener('input', () => {
+            assignOutputFilenames();
             renderQueue();
         });
 
         // =========================================================================
-        // 4. اختيار الملفات وإدارتها (متوافق تماماً مع iPhone Safari و Desktop)
+        // 4. اختيار الملفات وعرضها الفوري في القائمة
         // =========================================================================
-        function triggerNativeFilePicker() {
-            try {
-                const targetInput = (batchQueue.length > 0 && addMoreInput) ? addMoreInput : fileInput;
-                if (typeof targetInput.showPicker === 'function') {
-                    targetInput.showPicker();
-                    return;
-                }
-                targetInput.click();
-            } catch (_) {
-                try {
-                    fileInput.click();
-                } catch (err) {
-                    logTech(`Picker fallback error: ${err.message}`, 'warn');
-                }
-            }
-        }
-
-        function isAudioOnlyMedia(file) {
+        function isAudioFile(file) {
             const mime = String(file.type || '').toLowerCase();
             if (mime.startsWith('video/')) return false;
             const name = String(file.name || '').toLowerCase();
-            if (/\.(mkv|flv|wmv|avi|mov|mp4|webm|m4v|3gp)$/i.test(name)) return false;
-            return mime.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|aac|flac)$/i.test(name);
+            if (/\.(mp4|mov|mkv|avi|webm|flv|wmv|m4v|3gp)$/i.test(name)) return false;
+            return mime.startsWith('audio/') || /\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(name);
         }
 
-        function handleFileSelectionEvent(event) {
-            try {
-                const target = event && event.target ? event.target : null;
-                const rawFiles = target && target.files ? Array.from(target.files) : [];
-                if (rawFiles.length > 0) {
-                    logTech(`Selected ${rawFiles.length} file(s).`);
-                    addFilesToQueue(rawFiles);
-                }
-                if (target) {
-                    try {
-                        target.value = '';
-                    } catch (_) {}
-                }
-            } catch (err) {
-                logTech(`Selection error: ${err.message}`, 'error');
-            } finally {
-                recalculateQueueNames();
-                renderQueue();
-                updateStats();
-            }
-        }
+        function onFilesChosen(event) {
+            const input = event.target;
+            const files = input && input.files ? Array.from(input.files) : [];
+            if (files.length === 0) return;
 
-        if (selectFilesBtn) {
-            selectFilesBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                triggerNativeFilePicker();
-            });
-        }
-
-        if (addMoreBtn) {
-            addMoreBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                triggerNativeFilePicker();
-            });
-        }
-
-        if (clearQueueBtn) {
-            clearQueueBtn.addEventListener('click', () => {
-                if (isConverting) {
-                    showToast('يرجى إيقاف التحويل الحالي أولاً.', 'error');
-                    return;
-                }
-                batchQueue.forEach(item => {
-                    if (item.outputUrl) URL.revokeObjectURL(item.outputUrl);
-                });
-                batchQueue = [];
-                closePreview();
-                renderQueue();
-                updateStats();
-                logTech('Queue cleared.');
-            });
-        }
-
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('drag-active');
-        });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-active'));
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('drag-active');
-            const dropped = e.dataTransfer && e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
-            if (dropped.length > 0) {
-                addFilesToQueue(dropped);
-                recalculateQueueNames();
-                renderQueue();
-                updateStats();
-            }
-        });
-
-        [fileInput, addMoreInput].forEach((inputEl) => {
-            if (!inputEl) return;
-            inputEl.addEventListener('change', handleFileSelectionEvent);
-            inputEl.addEventListener('input', handleFileSelectionEvent);
-        });
-
-        function addFilesToQueue(fileList) {
             let added = 0;
-            let allAudio = true;
+            let onlyAudio = true;
 
-            for (const file of Array.from(fileList || [])) {
-                if (!file || !file.name) continue;
-                const audioOnly = isAudioOnlyMedia(file);
-                if (!audioOnly) allAudio = false;
+            for (const f of files) {
+                if (!f || !f.name) continue;
+                const audioOnly = isAudioFile(f);
+                if (!audioOnly) onlyAudio = false;
 
-                batchQueue.push({
-                    id: 'q_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
-                    file,
-                    isAudioOnly: audioOnly,
+                queue.push({
+                    id: 'item_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+                    file: f,
+                    audioOnly,
                     status: 'pending',
-                    statusLabel: 'جاهز',
                     progress: 0,
-                    outputName: '',
-                    outputBlob: null,
-                    outputUrl: null,
-                    outputSize: 0,
-                    sizeNote: '',
-                    savedDirectly: false,
-                    errorMsg: ''
+                    outName: '',
+                    outBlob: null,
+                    outUrl: null,
+                    outSize: 0,
+                    note: '',
+                    directSaved: false,
+                    errText: ''
                 });
                 added++;
             }
 
-            if (added === 0) {
-                showToast('لم يتم العثور على ملفات صالحة.', 'error');
+            try { input.value = ''; } catch (_) {}
+
+            if (added > 0) {
+                doneBanner.classList.add('hidden');
+                assignOutputFilenames();
+                renderQueue();
+                logSys(`Added ${added} file(s) to queue.`);
+
+                if (onlyAudio && queue.every(x => x.audioOnly) && outputMode === 'AVI') {
+                    setOutputMode('MP3');
+                    notify(`تمت إضافة ${added} ملفات صوتية وتحويل الوضع إلى MP3 تلقائياً.`, 'info');
+                } else {
+                    notify(`تمت إضافة ${added} ملف إلى قائمة التحويل.`, 'success');
+                }
+            }
+        }
+
+        [mainFileInput, moreFileInput].forEach((el) => {
+            el.addEventListener('change', onFilesChosen);
+            el.addEventListener('input', onFilesChosen);
+        });
+
+        dropLabel.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropLabel.classList.add('drag-over');
+        });
+        dropLabel.addEventListener('dragleave', () => dropLabel.classList.remove('drag-over'));
+        dropLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropLabel.classList.remove('drag-over');
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                onFilesChosen({ target: { files: e.dataTransfer.files } });
+            }
+        });
+
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            if (isRunning) {
+                notify('يرجى إيقاف التحويل الجاري أولاً.', 'error');
                 return;
             }
-
-            batchCompleteBanner.classList.add('hidden');
-            recalculateQueueNames();
+            queue.forEach(item => { if (item.outUrl) URL.revokeObjectURL(item.outUrl); });
+            queue = [];
+            hidePreview();
             renderQueue();
-            updateStats();
+            logSys('Queue cleared.');
+        });
 
-            if (allAudio && batchQueue.every(i => i.isAudioOnly) && currentMode === 'AVI') {
-                switchMode('MP3');
-                showToast(`تمت إضافة ${added} ملفات صوتية وتفعيل وضع MP3 تلقائياً.`, 'info');
-            } else {
-                showToast(`تمت إضافة ${added} ملف إلى قائمة التحويل.`, 'success');
-            }
+        function deleteItem(id) {
+            const idx = queue.findIndex(x => x.id === id);
+            if (idx === -1 || queue[idx].status === 'processing') return;
+            if (queue[idx].outUrl) URL.revokeObjectURL(queue[idx].outUrl);
+            queue.splice(idx, 1);
+            assignOutputFilenames();
+            renderQueue();
         }
 
-        function removeQueueItem(id) {
-            const idx = batchQueue.findIndex(i => i.id === id);
-            if (idx === -1) return;
-            if (batchQueue[idx].status === 'processing') return;
-            if (batchQueue[idx].outputUrl) URL.revokeObjectURL(batchQueue[idx].outputUrl);
-            batchQueue.splice(idx, 1);
-            recalculateQueueNames();
-            renderQueue();
-            updateStats();
-        }
-
-        function updateStats() {
-            const total = batchQueue.length;
+        function refreshStats() {
+            const total = queue.length;
             if (total === 0) {
-                queueCard.classList.add('hidden');
-                convertBtn.disabled = true;
+                queueSection.classList.add('hidden');
+                startBtn.disabled = true;
                 return;
             }
 
-            queueCard.classList.remove('hidden');
-            const pending = batchQueue.filter(i => i.status === 'pending' || i.status === 'error').length;
-            const completed = batchQueue.filter(i => i.status === 'completed').length;
+            queueSection.classList.remove('hidden');
+            const pendingCount = queue.filter(x => x.status === 'pending' || x.status === 'error').length;
+            const doneCount = queue.filter(x => x.status === 'completed').length;
 
-            queueCountEl.textContent = `${total} ${total === 1 ? 'ملف' : 'ملفات'}`;
-            if (isConverting) {
-                queueStatusEl.textContent = `جاري المعالجة (${completed}/${total} مكتمل) — ${document.hidden ? 'يعمل في الخلفية' : 'نشط'}`;
+            queueBadge.textContent = `${total} ${total === 1 ? 'ملف' : 'ملفات'}`;
+            queueSummary.textContent = isRunning
+                ? `جاري التحويل المتتابع (${doneCount}/${total} مكتمل)...`
+                : `جاهز للتحويل: ${pendingCount} | مكتمل: ${doneCount}`;
+
+            startBtn.disabled = isRunning || pendingCount === 0;
+
+            if (!isRunning && doneCount > 0) {
+                doneBanner.classList.remove('hidden');
+                doneText.textContent = dirHandle
+                    ? `اكتمل تحويل وحفظ ${doneCount} ملف في مجلد "${dirHandle.name}"!`
+                    : `اكتمل تحويل ${doneCount} ملف بنجاح!`;
             } else {
-                queueStatusEl.textContent = `جاهز: ${pending} | مكتمل: ${completed}`;
-            }
-
-            convertBtn.disabled = isConverting || pending === 0;
-
-            if (!isConverting && completed > 0) {
-                batchCompleteBanner.classList.remove('hidden');
-                batchCompleteMsg.textContent = selectedDirectoryHandle
-                    ? `اكتمل تحويل وحفظ ${completed} ملف في "${selectedDirectoryHandle.name}"!`
-                    : `اكتمل تحويل ${completed} ملف بنجاح!`;
-            } else {
-                batchCompleteBanner.classList.add('hidden');
+                doneBanner.classList.add('hidden');
             }
         }
 
         function renderQueue() {
-            updateStats();
-            if (!queueList || batchQueue.length === 0) {
-                if (queueList) queueList.innerHTML = '';
-                return;
-            }
+            refreshStats();
+            queueContainer.innerHTML = '';
+            if (queue.length === 0) return;
 
-            queueList.innerHTML = '';
-            batchQueue.forEach((item, idx) => {
-                const el = document.createElement('div');
-                el.className = `queue-item status-${item.status}`;
+            queue.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `queue-item ${item.status}`;
 
-                let pillHtml = '';
-                if (item.status === 'pending') pillHtml = `<span class="status-pill pill-pending">جاهز</span>`;
-                else if (item.status === 'processing') pillHtml = `<span class="status-pill pill-processing">جاري التحويل ${item.progress}%</span>`;
-                else if (item.status === 'completed') pillHtml = `<span class="status-pill pill-completed">مكتمل ✓</span>`;
-                else if (item.status === 'error') pillHtml = `<span class="status-pill pill-error">فشل ✕</span>`;
+                let statusHtml = '';
+                if (item.status === 'pending') statusHtml = `<span class="status-chip st-pending">جاهز</span>`;
+                else if (item.status === 'processing') statusHtml = `<span class="status-chip st-processing">جاري التحويل ${item.progress}%</span>`;
+                else if (item.status === 'completed') statusHtml = `<span class="status-chip st-completed">مكتمل ✓</span>`;
+                else if (item.status === 'error') statusHtml = `<span class="status-chip st-error">خطأ ✕</span>`;
 
-                let actionsHtml = '';
-                if (item.status === 'completed' && item.outputUrl) {
-                    actionsHtml += `<button type="button" onclick="previewQueueItem('${item.id}')" class="icon-btn" title="معاينة">▶</button>`;
-                    actionsHtml += `<a href="${item.outputUrl}" download="${item.outputName}" class="icon-btn emerald" title="تنزيل">⬇</a>`;
+                let btnsHtml = '';
+                if (item.status === 'completed' && item.outUrl) {
+                    btnsHtml += `<button type="button" onclick="openPreview('${item.id}')" class="act-btn" title="معاينة">▶</button>`;
+                    btnsHtml += `<a href="${item.outUrl}" download="${item.outName}" class="act-btn dl" title="تنزيل">⬇</a>`;
                 }
                 if (item.status !== 'processing') {
-                    actionsHtml += `<button type="button" onclick="removeQueueItem('${item.id}')" class="icon-btn danger" title="حذف">✕</button>`;
+                    btnsHtml += `<button type="button" onclick="deleteItem('${item.id}')" class="act-btn del" title="حذف">✕</button>`;
                 }
 
-                el.innerHTML = `
-                    <div class="item-top">
-                        <div class="item-info">
-                            <div class="item-index">${idx + 1}</div>
-                            <div class="item-names">
-                                <div class="item-src-name">${escapeHtml(item.file.name)}</div>
-                                <div class="item-meta">
-                                    <span>الأصل: ${formatBytes(item.file.size)}</span>
+                div.innerHTML = `
+                    <div class="q-row">
+                        <div class="q-left">
+                            <div class="q-num">${index + 1}</div>
+                            <div class="q-meta-wrap">
+                                <div class="q-src">${esc(item.file.name)}</div>
+                                <div class="q-sub">
+                                    <span>الأصل: ${formatSize(item.file.size)}</span>
                                     <span>←</span>
-                                    <span class="item-out-name">${escapeHtml(item.outputName)}</span>
-                                    ${item.status === 'completed' && item.outputSize ? `<span class="code-pill" style="color:#6ee7b7;">الناتج: ${formatBytes(item.outputSize)}</span>` : ''}
-                                    ${item.sizeNote ? `<span style="color:#94a3b8; font-size:0.7rem;">(${escapeHtml(item.sizeNote)})</span>` : ''}
-                                    ${item.savedDirectly ? '<span class="code-pill" style="color:#fcd34d;">حُفظ بالمجلد</span>' : ''}
+                                    <span class="q-out">${esc(item.outName)}</span>
+                                    ${item.status === 'completed' ? `<span class="tag-badge" style="color:#6ee7b7;">الناتج: ${formatSize(item.outSize)}</span>` : ''}
+                                    ${item.note ? `<span style="font-size:0.7rem;">(${esc(item.note)})</span>` : ''}
+                                    ${item.directSaved ? `<span class="tag-badge" style="color:#fcd34d;">حُفظ بالمجلد</span>` : ''}
                                 </div>
                             </div>
                         </div>
-                        <div class="item-controls">
-                            ${pillHtml}
-                            ${actionsHtml}
+                        <div class="q-actions">
+                            ${statusHtml}
+                            ${btnsHtml}
                         </div>
                     </div>
                     ${item.status === 'processing' ? `
-                        <div class="item-progress-bar">
-                            <div class="item-progress-fill" style="width:${item.progress}%"></div>
+                        <div class="progress-track">
+                            <div class="progress-bar" style="width:${item.progress}%"></div>
                         </div>
                     ` : ''}
                     ${item.status === 'error' ? `
-                        <div style="color:#fca5a5; font-size:0.75rem; margin-top:6px;">${escapeHtml(item.errorMsg)}</div>
+                        <div style="color:#fca5a5; font-size:0.75rem; margin-top:6px;">${esc(item.errText)}</div>
                     ` : ''}
                 `;
-                queueList.appendChild(el);
+                queueContainer.appendChild(div);
             });
         }
 
-        function escapeHtml(str) {
-            return String(str || '')
+        function esc(s) {
+            return String(s || '')
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
@@ -1426,67 +1333,63 @@
         // =========================================================================
         // 5. المعاينة الفورية ومجلد الحفظ
         // =========================================================================
-        function previewQueueItem(id) {
-            const item = batchQueue.find(i => i.id === id);
-            if (!item || !item.outputUrl) return;
-            const previewBox = document.getElementById('preview-box');
-            const previewTitle = document.getElementById('preview-title');
-            const container = document.getElementById('preview-media-container');
+        function openPreview(id) {
+            const item = queue.find(x => x.id === id);
+            if (!item || !item.outUrl) return;
+            const panel = document.getElementById('preview-panel');
+            const heading = document.getElementById('preview-heading');
+            const slot = document.getElementById('preview-slot');
 
-            previewTitle.textContent = `معاينة: ${item.outputName} (${formatBytes(item.outputSize)})`;
-            container.innerHTML = '';
+            heading.textContent = `معاينة: ${item.outName} (${formatSize(item.outSize)})`;
+            slot.innerHTML = '';
 
-            if (item.outputName.toUpperCase().endsWith('.MP3')) {
+            if (item.outName.toUpperCase().endsWith('.MP3')) {
                 const audio = document.createElement('audio');
                 audio.controls = true;
                 audio.autoplay = true;
-                audio.src = item.outputUrl;
-                container.appendChild(audio);
+                audio.src = item.outUrl;
+                slot.appendChild(audio);
             } else {
                 const video = document.createElement('video');
                 video.controls = true;
                 video.playsInline = true;
-                video.src = item.outputUrl;
-                container.appendChild(video);
+                video.src = item.outUrl;
+                slot.appendChild(video);
             }
-            previewBox.classList.remove('hidden');
+            panel.classList.remove('hidden');
         }
 
-        function closePreview() {
-            const previewBox = document.getElementById('preview-box');
-            const container = document.getElementById('preview-media-container');
-            if (container) container.innerHTML = '';
-            if (previewBox) previewBox.classList.add('hidden');
+        function hidePreview() {
+            document.getElementById('preview-slot').innerHTML = '';
+            document.getElementById('preview-panel').classList.add('hidden');
         }
 
-        document.getElementById('pick-folder-btn').addEventListener('click', async () => {
+        document.getElementById('choose-folder-btn').addEventListener('click', async () => {
             if (typeof window.showDirectoryPicker !== 'function') {
-                showToast('متصفحك يحفظ الملفات تلقائياً في مجلد التنزيلات (Files / Downloads).', 'info');
-                logTech('Directory picker unavailable on this browser; using standard download.');
+                notify('على iPhone Safari يتم حفظ الملفات مباشرة في مجلد التنزيلات (Files / Downloads).', 'info');
+                logSys('showDirectoryPicker not supported; using standard browser download.');
                 return;
             }
             try {
-                selectedDirectoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-                document.getElementById('folder-name-display').textContent = `مجلد مباشر: ${selectedDirectoryHandle.name}`;
-                showToast(`تم اختيار مجلد الحفظ: ${selectedDirectoryHandle.name}`, 'success');
-                logTech(`Output directory set to: ${selectedDirectoryHandle.name}`);
+                dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+                document.getElementById('save-location-text').textContent = `مجلد مباشر: ${dirHandle.name}`;
+                notify(`تم تحديد مجلد الحفظ: ${dirHandle.name}`, 'success');
+                logSys(`Output folder selected: ${dirHandle.name}`);
             } catch (err) {
-                if (err.name !== 'AbortError') {
-                    logTech(`Folder pick error: ${err.message}`, 'warn');
-                }
+                if (err.name !== 'AbortError') logSys(`Folder picker error: ${err.message}`, 'warn');
             }
         });
 
-        async function saveOutputBlob(blob, filename) {
-            if (selectedDirectoryHandle) {
+        async function saveFileOutput(blob, filename) {
+            if (dirHandle) {
                 try {
-                    const fileHandle = await selectedDirectoryHandle.getFileHandle(filename, { create: true });
-                    const writable = await fileHandle.createWritable();
+                    const fh = await dirHandle.getFileHandle(filename, { create: true });
+                    const writable = await fh.createWritable();
                     await writable.write(blob);
                     await writable.close();
                     return true;
                 } catch (err) {
-                    logTech(`Direct folder save failed, falling back to browser download: ${err.message}`, 'warn');
+                    logSys(`Direct save failed, using fallback download: ${err.message}`, 'warn');
                 }
             }
             const url = URL.createObjectURL(blob);
@@ -1500,555 +1403,555 @@
             return false;
         }
 
-        downloadAllBtn.addEventListener('click', async () => {
-            const completedItems = batchQueue.filter(i => i.status === 'completed' && i.outputBlob);
-            for (const item of completedItems) {
-                await saveOutputBlob(item.outputBlob, item.outputName);
-                await new Promise(r => setTimeout(r, 350));
+        dlAllBtn.addEventListener('click', async () => {
+            const doneItems = queue.filter(x => x.status === 'completed' && x.outBlob);
+            for (const item of doneItems) {
+                await saveFileOutput(item.outBlob, item.outName);
+                await new Promise(r => setTimeout(r, 320));
             }
         });
 
         // =========================================================================
-        // 6. محرك استخراج الصوت وتحويله إلى MP3 (مع مطابقة الحجم الأصلي)
+        // 6. محرك استخراج الصوت وتحويله إلى MP3 (كتل كبيرة 32768 عينة)
         // =========================================================================
-        async function decodeAudioFromFile(file, targetSampleRate) {
+        async function extractResampledAudio(file, targetRate) {
             const arrayBuffer = await file.arrayBuffer();
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            const audioCtx = new AudioCtx();
+            const ctx = new AudioCtx();
             try {
-                const decoded = await audioCtx.decodeAudioData(arrayBuffer);
-                if (!targetSampleRate || decoded.sampleRate === targetSampleRate) {
+                const decoded = await ctx.decodeAudioData(arrayBuffer);
+                if (!targetRate || decoded.sampleRate === targetRate) {
                     return decoded;
                 }
-                const offlineCtx = new OfflineAudioContext(
-                    decoded.numberOfChannels,
-                    Math.ceil(decoded.duration * targetSampleRate),
-                    targetSampleRate
-                );
-                const src = offlineCtx.createBufferSource();
+                const frameCount = Math.max(1, Math.ceil(decoded.duration * targetRate));
+                const offline = new OfflineAudioContext(decoded.numberOfChannels, frameCount, targetRate);
+                const src = offline.createBufferSource();
                 src.buffer = decoded;
-                src.connect(offlineCtx.destination);
+                src.connect(offline.destination);
                 src.start(0);
-                return await offlineCtx.startRendering();
+                return await offline.startRendering();
             } finally {
-                if (audioCtx.state !== 'closed') {
-                    await audioCtx.close().catch(() => {});
-                }
+                if (ctx.state !== 'closed') await ctx.close().catch(() => {});
             }
         }
 
-        async function convertFileToMP3(item, onProgress) {
+        async function encodeToMP3Fast(item, onProgress) {
             onProgress(10);
+            const turbo = document.getElementById('turbo-checkbox').checked;
             const matchSize = document.getElementById('match-size-checkbox').checked;
-            const bitrateSetting = document.getElementById('mp3-bitrate').value;
-            const channels = parseInt(document.getElementById('mp3-channels').value, 10) || 1;
+            const kbpsChoice = document.getElementById('mp3-kbps').value;
+            const channels = parseInt(document.getElementById('mp3-ch').value, 10) || 1;
+            const sampleRate = turbo ? 22050 : 44100;
 
-            const audioBuffer = await decodeAudioFromFile(item.file, 44100);
+            const audioBuffer = await extractResampledAudio(item.file, sampleRate);
             onProgress(35);
+
+            if (typeof window.lamejs === 'undefined' || !window.lamejs.Mp3Encoder) {
+                throw new Error('مكتبة LAME MP3 غير محمّلة. تأكد من الاتصال بالإنترنت عند فتح الصفحة أول مرة.');
+            }
 
             const duration = Math.max(0.5, audioBuffer.duration || 1);
             let kbps = 128;
 
-            if (bitrateSetting !== 'auto') {
-                kbps = parseInt(bitrateSetting, 10) || 128;
+            if (kbpsChoice !== 'auto') {
+                kbps = parseInt(kbpsChoice, 10) || 128;
             } else if (matchSize) {
-                // حساب معدل البت المناسب لمطابقة حجم الملف الأصلي
-                const targetKbps = Math.floor((item.file.size * 8) / (duration * 1000));
-                const allowedRates = [64, 80, 96, 112, 128, 160, 192, 256, 320];
-                kbps = allowedRates.reduce((prev, curr) =>
-                    Math.abs(curr - targetKbps) < Math.abs(prev - targetKbps) ? curr : prev
-                , 128);
+                const idealKbps = Math.floor((item.file.size * 8) / (duration * 1000));
+                const rates = [64, 80, 96, 112, 128, 160, 192, 256, 320];
+                kbps = rates.reduce((a, b) => Math.abs(b - idealKbps) < Math.abs(a - idealKbps) ? b : a, 128);
             }
 
-            if (typeof window.lamejs === 'undefined' || !window.lamejs.Mp3Encoder) {
-                throw new Error('مكتبة ترميز MP3 غير محمّلة (يرجى التحقق من الاتصال بالإنترنت عند التحميل الأول).');
-            }
-
-            const sampleRate = audioBuffer.sampleRate;
-            const mp3Encoder = new window.lamejs.Mp3Encoder(channels, sampleRate, kbps);
-            const leftFloat = audioBuffer.getChannelData(0);
-            const rightFloat = channels === 2
-                ? (audioBuffer.numberOfChannels > 1 ? audioBuffer.getChannelData(1) : leftFloat)
+            const encoder = new window.lamejs.Mp3Encoder(channels, audioBuffer.sampleRate, kbps);
+            const leftF32 = audioBuffer.getChannelData(0);
+            const rightF32 = channels === 2
+                ? (audioBuffer.numberOfChannels > 1 ? audioBuffer.getChannelData(1) : leftF32)
                 : null;
 
-            const sampleBlockSize = 1152;
-            const mp3Data = [];
-            const totalSamples = leftFloat.length;
+            const totalSamples = leftF32.length;
+            const chunkSamples = 32768; // كتل كبيرة لسرعة الترميز الفائقة
+            const mp3Chunks = [];
 
-            for (let i = 0; i < totalSamples; i += sampleBlockSize) {
-                const len = Math.min(sampleBlockSize, totalSamples - i);
-                const leftInt16 = new Int16Array(len);
-                const rightInt16 = channels === 2 ? new Int16Array(len) : null;
+            for (let offset = 0; offset < totalSamples; offset += chunkSamples) {
+                const len = Math.min(chunkSamples, totalSamples - offset);
+                const left16 = new Int16Array(len);
+                const right16 = channels === 2 ? new Int16Array(len) : null;
 
                 for (let j = 0; j < len; j++) {
-                    const sL = Math.max(-1, Math.min(1, leftFloat[i + j]));
-                    leftInt16[j] = sL < 0 ? sL * 0x8000 : sL * 0x7FFF;
-                    if (channels === 2 && rightInt16) {
-                        const sR = Math.max(-1, Math.min(1, rightFloat[i + j]));
-                        rightInt16[j] = sR < 0 ? sR * 0x8000 : sR * 0x7FFF;
+                    const l = Math.max(-1, Math.min(1, leftF32[offset + j]));
+                    left16[j] = l < 0 ? l * 0x8000 : l * 0x7FFF;
+                    if (channels === 2 && right16) {
+                        const r = Math.max(-1, Math.min(1, rightF32[offset + j]));
+                        right16[j] = r < 0 ? r * 0x8000 : r * 0x7FFF;
                     }
                 }
 
-                const mp3buf = channels === 2
-                    ? mp3Encoder.encodeBuffer(leftInt16, rightInt16)
-                    : mp3Encoder.encodeBuffer(leftInt16);
-                if (mp3buf.length > 0) mp3Data.push(mp3buf);
+                const encoded = channels === 2
+                    ? encoder.encodeBuffer(left16, right16)
+                    : encoder.encodeBuffer(left16);
+                if (encoded.length > 0) mp3Chunks.push(encoded);
 
-                if (i % (sampleBlockSize * 40) === 0) {
-                    const pct = 35 + Math.min(60, Math.round((i / totalSamples) * 60));
-                    onProgress(pct);
-                    await yieldToUI();
-                }
+                onProgress(35 + Math.min(60, Math.round((offset / totalSamples) * 60)));
+                await tickUI();
             }
 
-            const endBuf = mp3Encoder.flush();
-            if (endBuf.length > 0) mp3Data.push(endBuf);
+            const flushed = encoder.flush();
+            if (flushed.length > 0) mp3Chunks.push(flushed);
 
             onProgress(100);
-            const blob = new Blob(mp3Data, { type: 'audio/mp3' });
+            const blob = new Blob(mp3Chunks, { type: 'audio/mp3' });
             return {
                 blob,
-                sizeNote: `${kbps}kbps • ${channels === 1 ? 'Mono' : 'Stereo'}`
+                note: `${kbps}kbps • ${sampleRate}Hz • ${channels === 1 ? 'Mono' : 'Stereo'}`
             };
         }
 
         // =========================================================================
-        // 7. محرك بناء حاوية RIFF / AVI (MJPEG + 16-bit PCM + idx1) بمطابقة الحجم الأصلي
+        // 7. محرك بناء AVI فائق السرعة (التقاط متدفق + استخراج صوت متوازي + مطابقة الحجم)
         // =========================================================================
-        function dataUrlToUint8Array(dataUrl) {
-            const base64 = dataUrl.split(',')[1];
-            const binary = atob(base64);
-            const len = binary.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-                bytes[i] = binary.charCodeAt(i);
-            }
-            return bytes;
+        function dataUrlToBytes(dataUrl) {
+            const b64 = dataUrl.split(',')[1];
+            const bin = atob(b64);
+            const len = bin.length;
+            const out = new Uint8Array(len);
+            for (let i = 0; i < len; i++) out[i] = bin.charCodeAt(i);
+            return out;
         }
 
-        async function calibrateAVISettings(videoEl, canvas, ctx, originalSize, duration) {
+        function computeAVISettings(srcW, srcH, duration, originalSize) {
+            const turbo = document.getElementById('turbo-checkbox').checked;
             const matchSize = document.getElementById('match-size-checkbox').checked;
-            const resSetting = document.getElementById('avi-resolution').value;
-            const fpsSetting = document.getElementById('avi-fps').value;
-            const qualSetting = document.getElementById('avi-quality').value;
+            const resChoice = document.getElementById('avi-res').value;
+            const fpsChoice = document.getElementById('avi-fps').value;
+            const qualChoice = document.getElementById('avi-qual').value;
 
-            const srcW = videoEl.videoWidth || 640;
-            const srcH = videoEl.videoHeight || 480;
+            let w = srcW || 640;
+            let h = srcH || 480;
 
-            let targetW = srcW;
-            let targetH = srcH;
-
-            if (resSetting !== 'auto' && resSetting !== 'original') {
-                const [maxW, maxH] = resSetting.split('x').map(Number);
-                const scale = Math.min(maxW / srcW, maxH / srcH, 1);
-                targetW = Math.max(16, Math.round((srcW * scale) / 2) * 2);
-                targetH = Math.max(16, Math.round((srcH * scale) / 2) * 2);
-            } else if (resSetting === 'auto') {
-                const scale = Math.min(640 / srcW, 480 / srcH, 1);
-                targetW = Math.max(16, Math.round((srcW * scale) / 2) * 2);
-                targetH = Math.max(16, Math.round((srcH * scale) / 2) * 2);
+            if (resChoice !== 'auto' && resChoice !== 'original') {
+                const [mw, mh] = resChoice.split('x').map(Number);
+                const scale = Math.min(mw / w, mh / h, 1);
+                w = Math.max(16, Math.round((w * scale) / 2) * 2);
+                h = Math.max(16, Math.round((h * scale) / 2) * 2);
+            } else if (resChoice === 'auto') {
+                const maxDimW = turbo ? 480 : 640;
+                const maxDimH = turbo ? 360 : 480;
+                const scale = Math.min(maxDimW / w, maxDimH / h, 1);
+                w = Math.max(16, Math.round((w * scale) / 2) * 2);
+                h = Math.max(16, Math.round((h * scale) / 2) * 2);
             }
 
-            let fps = fpsSetting === 'auto' ? 15 : (parseInt(fpsSetting, 10) || 15);
-            let quality = qualSetting === 'auto' ? 0.55 : (parseFloat(qualSetting) || 0.55);
-            let audioRate = 11025; // Mono 16-bit PCM خفيف ومتوافق مع الكاميرات
+            let fps = fpsChoice === 'auto' ? (turbo ? 15 : 20) : (parseInt(fpsChoice, 10) || 15);
+            let quality = qualChoice === 'auto' ? 0.54 : (parseFloat(qualChoice) || 0.54);
+            const audioRate = turbo ? 22050 : 22050; // Mono 16-bit PCM خفيف وسريع
 
+            // معايرة ذكية لميزانية البت لمطابقة الحجم الأصلي
             if (matchSize && duration > 0 && originalSize > 0) {
-                const totalFramesEst = Math.max(1, Math.round(duration * fps));
-                const audioBytesEst = Math.round(duration * audioRate * 2);
-                const availableVideoBytes = Math.max(originalSize * 0.25, originalSize - audioBytesEst - (totalFramesEst * 32));
-                const targetBytesPerFrame = availableVideoBytes / totalFramesEst;
+                const estFrames = Math.max(1, Math.round(duration * fps));
+                const estAudioBytes = Math.round(duration * audioRate * 2);
+                const videoBudget = Math.max(originalSize * 0.3, originalSize - estAudioBytes - (estFrames * 24));
+                const bytesPerFrame = videoBudget / estFrames;
+                const pixels = w * h;
+                // تقدير حجم JPEG النسبي (حوالي 0.12 بايت لكل بكسل عند جودة 0.55)
+                const estFrameBytes = pixels * 0.12;
 
-                // قياس حجم إطار تجريبي
-                canvas.width = targetW;
-                canvas.height = targetH;
-                ctx.drawImage(videoEl, 0, 0, targetW, targetH);
-                const sampleJpeg = dataUrlToUint8Array(canvas.toDataURL('image/jpeg', quality));
-
-                if (sampleJpeg.length > targetBytesPerFrame) {
-                    const ratio = targetBytesPerFrame / sampleJpeg.length;
-                    if (qualSetting === 'auto') {
+                if (estFrameBytes > bytesPerFrame) {
+                    const ratio = bytesPerFrame / estFrameBytes;
+                    if (qualChoice === 'auto') {
                         quality = Math.max(0.28, Math.min(0.75, quality * Math.sqrt(ratio)));
                     }
-                    if (ratio < 0.55 && resSetting === 'auto') {
-                        const dimScale = Math.max(0.45, Math.sqrt(ratio * 1.4));
-                        targetW = Math.max(160, Math.round((targetW * dimScale) / 2) * 2);
-                        targetH = Math.max(120, Math.round((targetH * dimScale) / 2) * 2);
+                    if (ratio < 0.5 && resChoice === 'auto') {
+                        const dimFactor = Math.max(0.5, Math.sqrt(ratio * 1.5));
+                        w = Math.max(160, Math.round((w * dimFactor) / 2) * 2);
+                        h = Math.max(120, Math.round((h * dimFactor) / 2) * 2);
                     }
-                    if (ratio < 0.35 && fpsSetting === 'auto') {
-                        fps = 12;
-                    }
-                } else if (sampleJpeg.length < targetBytesPerFrame * 0.6 && qualSetting === 'auto') {
-                    quality = Math.min(0.82, quality + 0.12);
+                } else if (estFrameBytes < bytesPerFrame * 0.55 && qualChoice === 'auto') {
+                    quality = Math.min(0.80, quality + 0.14);
                 }
             }
 
-            return { width: targetW, height: targetH, fps, quality, audioRate };
+            return { width: w, height: h, fps, quality, audioRate, turbo };
         }
 
-        async function convertFileToAVI(item, onProgress) {
-            onProgress(5);
-            const srcUrl = URL.createObjectURL(item.file);
-            const videoEl = document.createElement('video');
-            videoEl.muted = true;
-            videoEl.playsInline = true;
-            videoEl.preload = 'auto';
+        async function encodeToAVITurbo(item, onProgress) {
+            onProgress(4);
+            const videoUrl = URL.createObjectURL(item.file);
+            const video = document.createElement('video');
+            video.muted = true;
+            video.playsInline = true;
+            video.preload = 'auto';
 
             try {
                 await new Promise((resolve, reject) => {
-                    videoEl.onloadedmetadata = () => resolve();
-                    videoEl.onerror = () => reject(new Error('تعذر قراءة بيانات الفيديو المصدر.'));
-                    videoEl.src = srcUrl;
+                    video.onloadedmetadata = () => resolve();
+                    video.onerror = () => reject(new Error('تعذر قراءة بيانات الفيديو المصدر.'));
+                    video.src = videoUrl;
                 });
 
-                const duration = Math.max(0.2, videoEl.duration || 1);
+                const duration = Math.max(0.2, video.duration || 1);
+                const cfg = computeAVISettings(video.videoWidth, video.videoHeight, duration, item.file.size);
+
                 const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-
-                // الانتقال لأول إطار للمعايرة
-                videoEl.currentTime = 0.01;
-                await new Promise(r => { videoEl.onseeked = r; setTimeout(r, 250); });
-
-                const cfg = await calibrateAVISettings(videoEl, canvas, ctx, item.file.size, duration);
                 canvas.width = cfg.width;
                 canvas.height = cfg.height;
+                const ctx = canvas.getContext('2d', { alpha: false });
 
-                // استخراج الصوت وتحويله إلى PCM 16-bit Mono
-                let pcmSamples = new Int16Array(0);
-                let hasAudio = false;
-                try {
-                    const audioBuf = await decodeAudioFromFile(item.file, cfg.audioRate);
-                    const ch0 = audioBuf.getChannelData(0);
-                    pcmSamples = new Int16Array(ch0.length);
-                    for (let i = 0; i < ch0.length; i++) {
-                        const s = Math.max(-1, Math.min(1, ch0[i]));
-                        pcmSamples[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                // تشغيل استخراج الصوت بالتوازي مع التقاط الفيديو (Promise.all)
+                const audioPromise = (async () => {
+                    try {
+                        const aBuf = await extractResampledAudio(item.file, cfg.audioRate);
+                        const ch0 = aBuf.getChannelData(0);
+                        const pcm = new Int16Array(ch0.length);
+                        for (let i = 0; i < ch0.length; i++) {
+                            const s = Math.max(-1, Math.min(1, ch0[i]));
+                            pcm[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                        }
+                        return pcm;
+                    } catch (_) {
+                        return new Int16Array(0);
                     }
-                    hasAudio = pcmSamples.length > 0;
-                } catch (_) {
-                    hasAudio = false;
-                }
+                })();
 
-                const totalFrames = Math.max(1, Math.floor(duration * cfg.fps));
-                const jpegFrames = [];
-                let maxFrameSize = 0;
+                // الالتقاط المتدفق السريع للإطارات (Turbo Stream Capture)
+                const videoPromise = (async () => {
+                    const frames = [];
+                    let maxFrameBytes = 0;
+                    const targetTotalFrames = Math.max(1, Math.floor(duration * cfg.fps));
 
-                for (let f = 0; f < totalFrames; f++) {
-                    if (stopRequested && f > 0) break;
-                    const t = Math.min(duration - 0.01, f / cfg.fps);
-                    videoEl.currentTime = t;
-                    await new Promise(r => {
-                        let done = false;
-                        const finish = () => { if (!done) { done = true; r(); } };
-                        videoEl.onseeked = finish;
-                        setTimeout(finish, 180);
-                    });
+                    // محاولة استخدام التشغيل المتسارع (playbackRate) للتدفق الفوري دون انتظار seeked المتكرر
+                    let streamSucceeded = false;
+                    if (cfg.turbo && duration <= 180) {
+                        try {
+                            const speedFactor = isIOS ? 4.0 : 6.0;
+                            video.playbackRate = speedFactor;
+                            video.currentTime = 0;
 
-                    ctx.drawImage(videoEl, 0, 0, cfg.width, cfg.height);
-                    const jpegBytes = dataUrlToUint8Array(canvas.toDataURL('image/jpeg', cfg.quality));
-                    jpegFrames.push(jpegBytes);
-                    if (jpegBytes.length > maxFrameSize) maxFrameSize = jpegBytes.length;
+                            await video.play();
+                            let lastCapturedVideoTime = -1;
+                            const frameStep = 1 / cfg.fps;
 
-                    if (f % 3 === 0) {
-                        onProgress(10 + Math.min(78, Math.round((f / totalFrames) * 78)));
-                        await yieldToUI();
+                            await new Promise((resolve) => {
+                                let finished = false;
+                                const finish = () => {
+                                    if (!finished) {
+                                        finished = true;
+                                        try { video.pause(); } catch (_) {}
+                                        resolve();
+                                    }
+                                };
+
+                                const captureTick = () => {
+                                    if (finished || abortFlag || video.ended || video.currentTime >= duration - 0.02) {
+                                        finish();
+                                        return;
+                                    }
+
+                                    const curT = video.currentTime;
+                                    if (curT - lastCapturedVideoTime >= frameStep * 0.75) {
+                                        ctx.drawImage(video, 0, 0, cfg.width, cfg.height);
+                                        const jpg = dataUrlToBytes(canvas.toDataURL('image/jpeg', cfg.quality));
+                                        frames.push(jpg);
+                                        if (jpg.length > maxFrameBytes) maxFrameBytes = jpg.length;
+                                        lastCapturedVideoTime = curT;
+
+                                        const pct = 8 + Math.min(78, Math.round((curT / duration) * 78));
+                                        onProgress(pct);
+                                    }
+
+                                    if (typeof video.requestVideoFrameCallback === 'function') {
+                                        video.requestVideoFrameCallback(captureTick);
+                                    } else {
+                                        setTimeout(captureTick, Math.max(8, Math.floor(1000 / (cfg.fps * speedFactor))));
+                                    }
+                                };
+
+                                video.onended = finish;
+                                setTimeout(finish, Math.ceil((duration / speedFactor) * 1000) + 2500);
+                                captureTick();
+                            });
+
+                            if (frames.length >= Math.max(2, Math.floor(targetTotalFrames * 0.45))) {
+                                streamSucceeded = true;
+                            }
+                        } catch (_) {
+                            streamSucceeded = false;
+                        }
                     }
-                }
 
+                    // مسار احتياطي سريع بالقفز المباشر إذا لم يدعم المتصفح التشغيل المتسارع في الخلفية
+                    if (!streamSucceeded) {
+                        frames.length = 0;
+                        maxFrameBytes = 0;
+                        const stepFrames = Math.max(1, targetTotalFrames);
+                        for (let f = 0; f < stepFrames; f++) {
+                            if (abortFlag && f > 0) break;
+                            video.currentTime = Math.min(duration - 0.01, f / cfg.fps);
+                            await new Promise(r => {
+                                let done = false;
+                                const ok = () => { if (!done) { done = true; r(); } };
+                                video.onseeked = ok;
+                                setTimeout(ok, 90);
+                            });
+                            ctx.drawImage(video, 0, 0, cfg.width, cfg.height);
+                            const jpg = dataUrlToBytes(canvas.toDataURL('image/jpeg', cfg.quality));
+                            frames.push(jpg);
+                            if (jpg.length > maxFrameBytes) maxFrameBytes = jpg.length;
+
+                            if (f % 4 === 0) {
+                                onProgress(8 + Math.min(78, Math.round((f / stepFrames) * 78)));
+                                await tickUI();
+                            }
+                        }
+                    }
+
+                    return { frames, maxFrameBytes };
+                })();
+
+                const [pcmSamples, videoRes] = await Promise.all([audioPromise, videoPromise]);
                 onProgress(90);
-                const aviBlob = buildRIFFAVIBlob(jpegFrames, pcmSamples, {
+
+                // حساب معدل الإطارات الفعلي الملتقط لضمان تطابق الصوت والصورة 100%
+                const actualFps = Math.max(1, Math.round(videoRes.frames.length / duration));
+                const aviBlob = assembleRIFFAVI(videoRes.frames, pcmSamples, {
                     width: cfg.width,
                     height: cfg.height,
-                    fps: cfg.fps,
+                    fps: actualFps,
                     audioRate: cfg.audioRate,
-                    hasAudio,
-                    maxFrameSize
+                    hasAudio: pcmSamples.length > 0,
+                    maxFrameBytes: videoRes.maxFrameBytes
                 });
 
                 onProgress(100);
                 return {
                     blob: aviBlob,
-                    sizeNote: `${cfg.width}×${cfg.height} • ${cfg.fps}fps`
+                    note: `${cfg.width}×${cfg.height} • ${actualFps}fps`
                 };
             } finally {
-                URL.revokeObjectURL(srcUrl);
+                URL.revokeObjectURL(videoUrl);
             }
         }
 
-        function buildRIFFAVIBlob(jpegFrames, pcmSamples, opts) {
-            const { width, height, fps, audioRate, hasAudio, maxFrameSize } = opts;
+        function assembleRIFFAVI(jpegFrames, pcmSamples, meta) {
+            const { width, height, fps, audioRate, hasAudio, maxFrameBytes } = meta;
             const numFrames = jpegFrames.length;
-            const microSecPerFrame = Math.round(1000000 / fps);
-            const streamsCount = hasAudio ? 2 : 1;
+            const usPerFrame = Math.round(1000000 / fps);
+            const streams = hasAudio ? 2 : 1;
 
-            // حساب كتل movi والفهرس idx1
-            const moviChunks = [];
-            const idxEntries = [];
-            let moviDataSize = 4; // 'movi'
+            const chunks = [];
+            const idxList = [];
+            let moviBytes = 4; // 'movi'
 
-            const samplesPerFrame = hasAudio ? Math.ceil(pcmSamples.length / numFrames) : 0;
-            let audioCursor = 0;
+            const samplesPerFrame = hasAudio ? Math.ceil(pcmSamples.length / Math.max(1, numFrames)) : 0;
+            let sampleOffset = 0;
 
             for (let i = 0; i < numFrames; i++) {
-                // إطار الفيديو 00dc
-                const vData = jpegFrames[i];
-                const vPad = vData.length % 2;
-                moviChunks.push({ fourcc: '00dc', data: vData, pad: vPad });
-                idxEntries.push({ fourcc: '00dc', flags: 0x10, offset: moviDataSize, size: vData.length });
-                moviDataSize += 8 + vData.length + vPad;
+                const vf = jpegFrames[i];
+                const vPad = vf.length & 1;
+                chunks.push({ id: '00dc', data: vf, pad: vPad });
+                idxList.push({ id: '00dc', offset: moviBytes, size: vf.length });
+                moviBytes += 8 + vf.length + vPad;
 
-                // قطعة الصوت 01wb
-                if (hasAudio && audioCursor < pcmSamples.length) {
-                    const count = Math.min(samplesPerFrame, pcmSamples.length - audioCursor);
-                    const slice = pcmSamples.subarray(audioCursor, audioCursor + count);
-                    const aBytes = new Uint8Array(slice.buffer, slice.byteOffset, slice.byteLength);
-                    const aPad = aBytes.length % 2;
-                    moviChunks.push({ fourcc: '01wb', data: aBytes, pad: aPad });
-                    idxEntries.push({ fourcc: '01wb', flags: 0x10, offset: moviDataSize, size: aBytes.length });
-                    moviDataSize += 8 + aBytes.length + aPad;
-                    audioCursor += count;
+                if (hasAudio && sampleOffset < pcmSamples.length) {
+                    const count = Math.min(samplesPerFrame, pcmSamples.length - sampleOffset);
+                    const sub = pcmSamples.subarray(sampleOffset, sampleOffset + count);
+                    const ab = new Uint8Array(sub.buffer, sub.byteOffset, sub.byteLength);
+                    const aPad = ab.length & 1;
+                    chunks.push({ id: '01wb', data: ab, pad: aPad });
+                    idxList.push({ id: '01wb', offset: moviBytes, size: ab.length });
+                    moviBytes += 8 + ab.length + aPad;
+                    sampleOffset += count;
                 }
             }
 
-            // ترويسة الفيديو strl (116 bytes)
-            const vStrlSize = 4 + (8 + 56) + (8 + 40); // 'strl' + strh + strf = 116
-            // ترويسة الصوت strl (92 bytes)
-            const aStrlSize = hasAudio ? (4 + (8 + 56) + (8 + 16)) : 0;
-            // ترويسة hdrl
-            const hdrlSize = 4 + (8 + 56) + (8 + vStrlSize) + (hasAudio ? (8 + aStrlSize) : 0);
-            const idx1Size = idxEntries.length * 16;
-            const riffSize = 4 + (8 + hdrlSize) + (8 + moviDataSize) + (8 + idx1Size);
+            const vStrlBytes = 4 + 64 + 48; // 116
+            const aStrlBytes = hasAudio ? (4 + 64 + 24) : 0; // 92
+            const hdrlBytes = 4 + 64 + (8 + vStrlBytes) + (hasAudio ? (8 + aStrlBytes) : 0);
+            const idx1Bytes = idxList.length * 16;
+            const riffBytes = 4 + (8 + hdrlBytes) + (8 + moviBytes) + (8 + idx1Bytes);
 
-            const buffer = new ArrayBuffer(8 + riffSize);
-            const view = new DataView(buffer);
-            const bytes = new Uint8Array(buffer);
-            let pos = 0;
+            const buf = new ArrayBuffer(8 + riffBytes);
+            const dv = new DataView(buf);
+            const u8 = new Uint8Array(buf);
+            let p = 0;
 
-            function writeFourCC(str) {
-                for (let i = 0; i < 4; i++) bytes[pos++] = str.charCodeAt(i);
-            }
-            function writeU32(val) {
-                view.setUint32(pos, val >>> 0, true);
-                pos += 4;
-            }
-            function writeU16(val) {
-                view.setUint16(pos, val & 0xFFFF, true);
-                pos += 2;
-            }
+            const put4CC = (s) => {
+                u8[p++] = s.charCodeAt(0);
+                u8[p++] = s.charCodeAt(1);
+                u8[p++] = s.charCodeAt(2);
+                u8[p++] = s.charCodeAt(3);
+            };
+            const put32 = (v) => { dv.setUint32(p, v >>> 0, true); p += 4; };
+            const put16 = (v) => { dv.setUint16(p, v & 0xFFFF, true); p += 2; };
 
-            // RIFF AVI
-            writeFourCC('RIFF');
-            writeU32(riffSize);
-            writeFourCC('AVI ');
+            put4CC('RIFF'); put32(riffBytes); put4CC('AVI ');
+            put4CC('LIST'); put32(hdrlBytes); put4CC('hdrl');
 
-            // LIST hdrl
-            writeFourCC('LIST');
-            writeU32(hdrlSize);
-            writeFourCC('hdrl');
+            // avih
+            put4CC('avih'); put32(56);
+            put32(usPerFrame);
+            put32(maxFrameBytes * fps);
+            put32(0);
+            put32(0x10); // AVIF_HASINDEX
+            put32(numFrames);
+            put32(0);
+            put32(streams);
+            put32(maxFrameBytes);
+            put32(width);
+            put32(height);
+            put32(0); put32(0); put32(0); put32(0);
 
-            // avih (56 bytes)
-            writeFourCC('avih');
-            writeU32(56);
-            writeU32(microSecPerFrame);
-            writeU32(maxFrameSize * fps);
-            writeU32(0);
-            writeU32(0x10); // AVIF_HASINDEX
-            writeU32(numFrames);
-            writeU32(0);
-            writeU32(streamsCount);
-            writeU32(maxFrameSize);
-            writeU32(width);
-            writeU32(height);
-            writeU32(0); writeU32(0); writeU32(0); writeU32(0);
+            // Video strl
+            put4CC('LIST'); put32(vStrlBytes); put4CC('strl');
+            put4CC('strh'); put32(56);
+            put4CC('vids'); put4CC('MJPG');
+            put32(0); put16(0); put16(0); put32(0);
+            put32(1); put32(fps); put32(0);
+            put32(numFrames); put32(maxFrameBytes); put32(0xFFFFFFFF); put32(0);
+            put16(0); put16(0); put16(width); put16(height);
 
-            // LIST strl (Video)
-            writeFourCC('LIST');
-            writeU32(vStrlSize);
-            writeFourCC('strl');
+            put4CC('strf'); put32(40);
+            put32(40); put32(width); put32(height);
+            put16(1); put16(24); put4CC('MJPG');
+            put32(width * height * 3);
+            put32(0); put32(0); put32(0); put32(0);
 
-            // strh (56 bytes)
-            writeFourCC('strh');
-            writeU32(56);
-            writeFourCC('vids');
-            writeFourCC('MJPG');
-            writeU32(0);
-            writeU16(0); writeU16(0);
-            writeU32(0);
-            writeU32(1);
-            writeU32(fps);
-            writeU32(0);
-            writeU32(numFrames);
-            writeU32(maxFrameSize);
-            writeU32(0xFFFFFFFF);
-            writeU32(0);
-            writeU16(0); writeU16(0); writeU16(width); writeU16(height);
-
-            // strf (BITMAPINFOHEADER 40 bytes)
-            writeFourCC('strf');
-            writeU32(40);
-            writeU32(40);
-            writeU32(width);
-            writeU32(height);
-            writeU16(1);
-            writeU16(24);
-            writeFourCC('MJPG');
-            writeU32(width * height * 3);
-            writeU32(0); writeU32(0); writeU32(0); writeU32(0);
-
-            // LIST strl (Audio)
+            // Audio strl
             if (hasAudio) {
-                writeFourCC('LIST');
-                writeU32(aStrlSize);
-                writeFourCC('strl');
+                put4CC('LIST'); put32(aStrlBytes); put4CC('strl');
+                put4CC('strh'); put32(56);
+                put4CC('auds'); put32(0);
+                put32(0); put16(0); put16(0); put32(0);
+                put32(1); put32(audioRate); put32(0);
+                put32(pcmSamples.length); put32(audioRate * 2); put32(0xFFFFFFFF); put32(2);
+                put16(0); put16(0); put16(0); put16(0);
 
-                writeFourCC('strh');
-                writeU32(56);
-                writeFourCC('auds');
-                writeU32(0);
-                writeU32(0);
-                writeU16(0); writeU16(0);
-                writeU32(0);
-                writeU32(1);
-                writeU32(audioRate);
-                writeU32(0);
-                writeU32(pcmSamples.length);
-                writeU32(audioRate * 2);
-                writeU32(0xFFFFFFFF);
-                writeU32(2);
-                writeU16(0); writeU16(0); writeU16(0); writeU16(0);
-
-                // WAVEFORMATEX (16 bytes)
-                writeFourCC('strf');
-                writeU32(16);
-                writeU16(1); // PCM
-                writeU16(1); // Mono
-                writeU32(audioRate);
-                writeU32(audioRate * 2);
-                writeU16(2);
-                writeU16(16);
+                put4CC('strf'); put32(16);
+                put16(1); put16(1);
+                put32(audioRate); put32(audioRate * 2);
+                put16(2); put16(16);
             }
 
-            // LIST movi
-            writeFourCC('LIST');
-            writeU32(moviDataSize);
-            writeFourCC('movi');
-
-            for (const chunk of moviChunks) {
-                writeFourCC(chunk.fourcc);
-                writeU32(chunk.data.length);
-                bytes.set(chunk.data, pos);
-                pos += chunk.data.length;
-                if (chunk.pad) bytes[pos++] = 0;
+            // movi
+            put4CC('LIST'); put32(moviBytes); put4CC('movi');
+            for (let i = 0; i < chunks.length; i++) {
+                const c = chunks[i];
+                put4CC(c.id);
+                put32(c.data.length);
+                u8.set(c.data, p);
+                p += c.data.length;
+                if (c.pad) u8[p++] = 0;
             }
 
             // idx1
-            writeFourCC('idx1');
-            writeU32(idx1Size);
-            for (const entry of idxEntries) {
-                writeFourCC(entry.fourcc);
-                writeU32(entry.flags);
-                writeU32(entry.offset);
-                writeU32(entry.size);
+            put4CC('idx1'); put32(idx1Bytes);
+            for (let i = 0; i < idxList.length; i++) {
+                const e = idxList[i];
+                put4CC(e.id);
+                put32(0x10);
+                put32(e.offset);
+                put32(e.size);
             }
 
-            return new Blob([buffer], { type: 'video/avi' });
+            return new Blob([buf], { type: 'video/avi' });
         }
 
         // =========================================================================
-        // 8. تشغيل قائمة التحويل المتسلسلة (Batch Sequential Queue)
+        // 8. تنفيذ قائمة التحويل المتسلسلة (Batch Sequential Runner)
         // =========================================================================
-        convertBtn.addEventListener('click', async () => {
-            if (isConverting) return;
-            const pendingItems = batchQueue.filter(i => i.status === 'pending' || i.status === 'error');
-            if (pendingItems.length === 0) return;
+        startBtn.addEventListener('click', async () => {
+            if (isRunning) return;
+            const targets = queue.filter(x => x.status === 'pending' || x.status === 'error');
+            if (targets.length === 0) return;
 
-            isConverting = true;
-            stopRequested = false;
-            convertBtn.classList.add('hidden');
+            isRunning = true;
+            abortFlag = false;
+            startBtn.classList.add('hidden');
             stopBtn.classList.remove('hidden');
-            overallProgressBox.classList.remove('hidden');
-            batchCompleteBanner.classList.add('hidden');
-            await requestWakeLock();
+            overallPanel.classList.remove('hidden');
+            doneBanner.classList.add('hidden');
+            await acquireWakeLock();
 
-            logTech(`Starting sequential batch (${pendingItems.length} file(s)) in ${currentMode} mode.`);
+            const tStartAll = performance.now();
+            logSys(`Batch started (${targets.length} item(s)) -> ${outputMode}.`);
 
-            for (let idx = 0; idx < pendingItems.length; idx++) {
-                if (stopRequested) {
-                    logTech('Batch queue stopped by user.');
+            for (let i = 0; i < targets.length; i++) {
+                if (abortFlag) {
+                    logSys('Queue stopped by user.');
                     break;
                 }
 
-                const item = pendingItems[idx];
+                const item = targets[i];
                 item.status = 'processing';
                 item.progress = 0;
-                item.errorMsg = '';
+                item.errText = '';
                 renderQueue();
 
-                overallLabel.textContent = `جاري معالجة الملف ${idx + 1} من ${pendingItems.length}: ${item.file.name}`;
-                overallPercent.textContent = `${Math.round((idx / pendingItems.length) * 100)}%`;
-                overallFill.style.width = `${Math.round((idx / pendingItems.length) * 100)}%`;
+                overallText.textContent = `جاري تحويل (${i + 1} من ${targets.length}): ${item.file.name}`;
+                const tItemStart = performance.now();
 
                 try {
-                    const onItemProgress = (pct) => {
+                    const updateItemPct = (pct) => {
                         item.progress = pct;
-                        const overall = Math.round(((idx + pct / 100) / pendingItems.length) * 100);
-                        overallPercent.textContent = `${overall}%`;
-                        overallFill.style.width = `${overall}%`;
+                        const totalPct = Math.round(((i + pct / 100) / targets.length) * 100);
+                        overallPct.textContent = `${totalPct}%`;
+                        overallBar.style.width = `${totalPct}%`;
                         renderQueue();
                     };
 
-                    const result = currentMode === 'MP3'
-                        ? await convertFileToMP3(item, onItemProgress)
-                        : await convertFileToAVI(item, onItemProgress);
+                    const res = outputMode === 'MP3'
+                        ? await encodeToMP3Fast(item, updateItemPct)
+                        : await encodeToAVITurbo(item, updateItemPct);
 
-                    if (item.outputUrl) URL.revokeObjectURL(item.outputUrl);
-                    item.outputBlob = result.blob;
-                    item.outputUrl = URL.createObjectURL(result.blob);
-                    item.outputSize = result.blob.size;
-                    item.sizeNote = result.sizeNote || '';
+                    if (item.outUrl) URL.revokeObjectURL(item.outUrl);
+                    item.outBlob = res.blob;
+                    item.outUrl = URL.createObjectURL(res.blob);
+                    item.outSize = res.blob.size;
+                    item.note = res.note || '';
                     item.status = 'completed';
                     item.progress = 100;
 
-                    item.savedDirectly = await saveOutputBlob(result.blob, item.outputName);
-                    logTech(`Completed "${item.outputName}" (${formatBytes(item.outputSize)}).`);
+                    item.directSaved = await saveFileOutput(res.blob, item.outName);
+                    const sec = ((performance.now() - tItemStart) / 1000).toFixed(1);
+                    logSys(`Done "${item.outName}" (${formatSize(item.outSize)}) in ${sec}s.`);
                 } catch (err) {
                     item.status = 'error';
-                    item.errorMsg = err.message || 'حدث خطأ أثناء التحويل.';
-                    logTech(`Error converting "${item.file.name}": ${item.errorMsg}`, 'error');
+                    item.errText = err.message || 'فشل تحويل الملف.';
+                    logSys(`Failed "${item.file.name}": ${item.errText}`, 'error');
                 }
 
                 renderQueue();
-                await yieldToUI();
+                await tickUI();
             }
 
-            isConverting = false;
-            stopRequested = false;
+            isRunning = false;
+            abortFlag = false;
             await releaseWakeLock();
 
-            overallPercent.textContent = '100%';
-            overallFill.style.width = '100%';
+            const totalSec = ((performance.now() - tStartAll) / 1000).toFixed(1);
+            logSys(`Batch finished in ${totalSec}s.`);
+
+            overallPct.textContent = '100%';
+            overallBar.style.width = '100%';
             stopBtn.classList.add('hidden');
-            convertBtn.classList.remove('hidden');
-            setTimeout(() => overallProgressBox.classList.add('hidden'), 1200);
-            updateStats();
+            startBtn.classList.remove('hidden');
+            setTimeout(() => overallPanel.classList.add('hidden'), 1000);
+            refreshStats();
         });
 
         stopBtn.addEventListener('click', () => {
-            stopRequested = true;
+            abortFlag = true;
             stopBtn.textContent = 'جاري الإيقاف بعد انتهاء الملف الحالي...';
-            showToast('سيتم إيقاف القائمة فور انتهاء الملف الحالي.', 'info');
+            notify('سيتم إيقاف القائمة بعد انتهاء الملف الحالي.', 'info');
         });
 
         // =========================================================================
-        // 9. التهيئة الأولية عند فتح الصفحة
+        // 9. التهيئة الأولية
         // =========================================================================
         window.addEventListener('DOMContentLoaded', () => {
             if (isIOS) {
-                const iosBadge = document.getElementById('ios-badge');
-                if (iosBadge) iosBadge.classList.remove('hidden');
-                logTech('iPhone / iOS Safari environment detected and optimized.');
+                document.getElementById('ios-chip').classList.remove('hidden');
+                logSys('iPhone / iOS Safari detected & optimized.');
             }
-            logTech('Batch AVI & MP3 converter initialized and ready.');
+            logSys('Turbo AVI & MP3 Converter ready.');
         });
     </script>
 </body>
